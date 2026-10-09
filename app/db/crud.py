@@ -140,6 +140,50 @@ def get_facts(shop_id: int) -> Dict[str, Any]:
     conn.close()
     facts = {}
     for r in rows:
-        facts[r["bin_type"]] = json.loads(r["data"])
+        try:
+            facts[r["bin_type"]] = json.loads(r["data"])
+        except (json.JSONDecodeError, TypeError):
+            facts[r["bin_type"]] = r["data"]
     return facts
+
+
+def get_provenance(shop_id: int) -> List[Dict[str, Any]]:
+    conn = get_connection()
+    rows = conn.execute("SELECT * FROM provenance WHERE shop_id = ?", (shop_id,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_consent(shop_id: int) -> List[Dict[str, Any]]:
+    conn = get_connection()
+    rows = conn.execute("SELECT * FROM consent_records WHERE shop_id = ?", (shop_id,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_website_specs(shop_id: int) -> List[Dict[str, Any]]:
+    conn = get_connection()
+    rows = conn.execute("SELECT * FROM website_specs WHERE shop_id = ? ORDER BY version", (shop_id,)).fetchall()
+    conn.close()
+    result = []
+    for row in rows:
+        item = dict(row)
+        if item.get("spec_data"):
+            try:
+                item["spec_data"] = json.loads(item["spec_data"])
+            except (json.JSONDecodeError, TypeError):
+                pass
+        result.append(item)
+    return result
+
+
+def get_infobin(shop_id: int, bin_type: str) -> Optional[Dict[str, Any]]:
+    """Alias for get_bin for compatibility."""
+    return get_bin(shop_id, bin_type)
+
+
+# Backward compatibility aliases
+get_shop = get_shop_by_slug
+create_shop = create_or_update_shop
+
 
