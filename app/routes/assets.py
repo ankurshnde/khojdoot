@@ -90,10 +90,11 @@ def _render_template(filename: str) -> str:
     raise HTTPException(status_code=404, detail=f"Template {filename} not found")
 
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("/index", response_class=HTMLResponse)
 def view_index_hub():
     """Renders the main KhojDoot Feature Hub."""
     return _render_template("index.html")
+
 
 
 @router.get("/login", response_class=HTMLResponse)

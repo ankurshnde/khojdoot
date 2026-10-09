@@ -5,8 +5,10 @@ Boundary: Application setup, middleware, routing, and lifecycle.
 """
 import os
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
 
 from app.config import settings
 from app.db.database import init_db
@@ -64,24 +66,23 @@ def health_check():
     }
 
 
-@app.get("/api", tags=["Root"])
-def api_root():
-    return {
-        "message": "Welcome to KhojDoot API. Check /docs for documentation.",
-        "health": "/health",
-    }
-
-
-@app.get("/", tags=["Root"])
-def root():
+@app.get("/app", response_class=HTMLResponse, tags=["Frontend"])
+def frontend_hub():
     import os
-    from fastapi.responses import HTMLResponse
     template_path = os.path.join(os.path.dirname(__file__), "templates", "index.html")
     if os.path.exists(template_path):
         with open(template_path, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h1>KhojDoot Frontend</h1>")
+
+
+@app.get("/", tags=["Root"])
+def root():
     return {
         "message": "Welcome to KhojDoot API. Check /docs for documentation.",
         "health": "/health",
+        "frontend": "/app",
     }
+
+
 
