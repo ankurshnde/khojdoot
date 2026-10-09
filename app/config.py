@@ -24,8 +24,11 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     SARVAM_API_KEY: str = ""
 
-    CODING_MODEL_PROVIDER: str = "gemini"
-    CODING_MODEL_NAME: str = "gemini-2.5-flash"
+    CODING_MODEL_PROVIDER: str = "openrouter"
+    CODING_MODEL_NAME: str = "google/gemma-4-31b-it:free"
+
+    OPENROUTER_API_KEY: str = ""
+    OPENROUTER_CODING_MODEL: str = "google/gemma-4-31b-it:free"
 
 
 
