@@ -98,24 +98,18 @@ khojdoot/
 │   │
 │   └── config.py
 │
-├── tests/
-│   ├── test_infobin.py
-│   ├── test_harness.py
-│   ├── test_website.py
-│   └── test_publishing.py
-│
 ├── data/
-│   └── .gitkeep
+│   ├── .gitkeep
+│   └── shops.json
 │
 ├── generated/
 │   └── .gitkeep
 │
-├── .env
-├── .env.example
+├── docs/
+│   ├── DEMO-CHECKLIST.md
+│   └── FIELD-MAPPING.md
+│
 ├── .gitignore
-├── requirements.txt
-├── Dockerfile
-├── docker-compose.yml
 └── README.md
 ```
 
@@ -128,42 +122,23 @@ All team members must write and maintain code strictly within their designated m
 | Team Member | Role | Assigned Files & Directories | Core Responsibilities |
 |---|---|---|---|
 | **Ankur** | **Tech Lead & System Architect** | `app/harness/`, `app/schemas/`, `app/website/coding_model.py`, overall wiring | Core LangGraph orchestration, contracts, end-to-end integration |
-| **Abhishek** | **Backend & FastAPI Engineer** | `app/main.py`, `app/routes/` (`merchants.py`, `website.py`, `assets.py`), `Dockerfile` | API routing, request validation, middleware, server deployment |
+| **Abhishek** | **Backend & FastAPI Engineer** | `app/main.py`, `app/routes/` (`merchants.py`, `website.py`, `assets.py`) | API routing, request validation, middleware, server deployment |
 | **Shantanu** | **Database & Persistence** | `app/db/` (`database.py`, `models.py`, `crud.py`) | SQLite 6-table schema, records, query optimization |
 | **Paksha** | **AI & Design Technical Support** | `app/ai/` (`sarvam.py`, `gemini.py`), skills | Speech-to-Text, entity extraction, prompt engineering |
-| **Gayatri** | **Frontend & Website Engine** | `app/website/` (`generator.py`, `patcher.py`, `preview.py`, `components/`) | UI components, live preview, conversational editing loop |
-| **Sakshi** | **QA & Validation Support** | `app/validation/`, `tests/` | Pydantic rules, 8-point website validation suite, test cases |
+| **Gayatri** | **Frontend & Website Engine** | `app/website/` (`generator.py`, `patcher.py`, `preview.py`, `components/`), `app/templates/` | UI components, live preview, conversational editing loop, templates |
+| **Sakshi** | **QA & Validation Support** | `app/validation/`, `docs/`, `data/shops.json` | Pydantic rules, 8-point website validation suite, demo checklist |
 
 ---
 
 ## 4. Quick Start
 
-### 1. Install Dependencies
-```bash
-python -m venv venv
-# On Windows:
-.\venv\Scripts\activate
-# On Linux/macOS:
-source venv/bin/activate
-
-pip install -r requirements.txt
-```
-
-### 2. Environment Variables
-Copy `.env.example` to `.env` and fill in API keys:
-```bash
-cp .env.example .env
-```
-
-### 3. Run Development Server
+### Run Development Server
 ```bash
 uvicorn app.main:app --reload --port 8000
 ```
 - Interactive Docs: http://localhost:8000/docs
 - Health Check: http://localhost:8000/health
+- Onboarding Form: http://localhost:8000/upload
+- Live Telemetry Dashboard: http://localhost:8000/labs
 - Sample Merchant Site: http://localhost:8000/merchant/sunita-tiffin-service
 
-### 4. Run Test Suite
-```bash
-pytest
-```
