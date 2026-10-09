@@ -1,0 +1,49 @@
+"""
+Merchant & Web Chat Routes.
+Owner: Abhishek (Backend / FastAPI)
+"""
+from fastapi import APIRouter, HTTPException, UploadFile, File
+from pydantic import BaseModel
+from typing import Optional, List
+from app.db.crud import create_or_update_shop, get_shop_by_slug, save_bin, save_consent
+from app.harness.workflow import execute_workflow
+
+router = APIRouter()
+
+
+class ChatInput(BaseModel):
+    message: str
+    language: Optional[str] = "mr-IN"
+
+
+class ApprovalPayload(BaseModel):
+    approved: bool
+    corrections: Optional[str] = None
+
+
+@router.post("/{slug}/chat")
+def chat_with_merchant(slug: str, chat: ChatInput):
+    """Processes Web Chat requirement input."""
+    result = execute_workflow({"slug": slug, "raw_input": chat.message, "phase": "checkpoint1"})
+    return {
+        "status": "success",
+        "checkpoint": "CHECKPOINT_1_AWAITING_APPROVAL",
+        "data": result,
+    }
+
+
+@router.post("/{slug}/checkpoint1/approve")
+def approve_checkpoint1(slug: str, payload: ApprovalPayload):
+    """Checkpoint 1: Merchant reviews and approves extracted business facts."""
+    if not payload.approved:
+        return {"status": "rejected", "message": "Corrections requested", "corrections": payload.corrections}
+
+    shop = get_shop_by_slug(slug)
+    if shop:
+        save_consent(shop["id"], consent_type="checkpoint1_business_info")
+
+    return {
+        "status": "approved",
+        "message": "Checkpoint 1 approved. Website generation unlocked.",
+        "next": f"/api/website/{slug}/generate",
+    }

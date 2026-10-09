@@ -1,0 +1,17 @@
+services:
+  khojdoot:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - DEBUG=True
+      - BASE_URL=http://localhost:8000
+      - DATABASE_URL=sqlite:///./data/khoj_doot.db
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - SARVAM_API_KEY=${SARVAM_API_KEY:-}
+    volumes:
+      - ./data:/app/data
+      - ./generated:/app/generated
+    restart: unless-stopped
