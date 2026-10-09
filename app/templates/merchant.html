@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KhojDoot — Published Merchant Website</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .top-merchant-bar {
+      background-color: #111827;
+      color: #e5e7eb;
+      padding: 10px 20px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid #1f2937;
+    }
+    .merchant-tab-btn {
+      background: #1f2937;
+      border: 1px solid #374151;
+      color: #d1d5db;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .merchant-tab-btn:hover {
+      background: #374151;
+      color: #ffffff;
+    }
+    .merchant-tab-btn.active {
+      background: var(--brand-maroon);
+      border-color: var(--brand-maroon);
+      color: #ffffff;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Utilities Bar -->
+  <div class="top-merchant-bar">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <a href="index.html" style="color: #ffffff; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+        <span>🏠</span>
+        <span>KhojDoot Hub</span>
+      </a>
+      <span style="color: #4b5563;">|</span>
+      <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #16a34a;"></span>
+      <span id="routeText" style="font-weight: 600; color: #f3f4f6;">/merchant/shinde-auto</span>
+      <span style="color: #9ca3af; font-size: 11px;">• <span data-i18n="statusVerified">स्थानिक स्तरावर पडताळणी झालेला व्यवसाय</span></span>
+    </div>
+
+    <!-- Quick Switcher and Links to other connected features -->
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <a href="preview.html" class="merchant-tab-btn">👁️ Preview</a>
+      <a href="editor.html" class="merchant-tab-btn">🎙️ Edit Site</a>
+      <a href="card.html" class="merchant-tab-btn">🪪 Khoj Card</a>
+      <span style="color: #4b5563;">|</span>
+      
+      <!-- Quick Shop Selector -->
+      <a href="merchant.html?slug=shinde-auto" class="merchant-tab-btn active" id="btnShinde">Shinde Auto</a>
+      <a href="merchant.html?slug=sai-tea" class="merchant-tab-btn" id="btnSai">Sai Tea</a>
+      <a href="merchant.html?slug=patil-kirana" class="merchant-tab-btn" id="btnPatil">Patil Kirana</a>
+
+      <span style="color: #4b5563;">|</span>
+      <!-- Language Dropdown -->
+      <div class="lang-dropdown-wrapper" style="position: relative;">
+        <button id="langDropdownBtn" class="merchant-tab-btn" style="cursor: pointer;">
+          <span id="currentLangLabel">मराठी</span> ▾
+        </button>
+        <div id="langDropdownMenu" class="lang-dropdown-menu">
+          <button class="lang-option active" data-lang="mr">मराठी</button>
+          <button class="lang-option" data-lang="hi">हिंदी</button>
+          <button class="lang-option" data-lang="te">తెలుగు</button>
+          <button class="lang-option" data-lang="en">English</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic Website Content -->
+  <div id="merchantSiteWrap">
+    <!-- Rendered dynamically by KhojWebsite.renderCompleteWebsite -->
+  </div>
+
+  <script src="/static/js/language.js"></script>
+  <script src="/static/js/business.js"></script>
+  <script src="/static/js/website.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const wrap = document.getElementById('merchantSiteWrap');
+      const routeText = document.getElementById('routeText');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      let slug = urlParams.get('slug');
+
+      let business = null;
+      if (slug) {
+        business = KhojBusiness.selectBusinessBySlug(slug);
+      } else {
+        business = KhojBusiness.getCurrentBusiness();
+      }
+
+      let spec = KhojWebsite.getCurrentSpec();
+
+      routeText.textContent = `/merchant/${business.slug || 'my-business'}`;
+      document.title = `${business.name} — KhojDoot`;
+
+      document.querySelectorAll('.merchant-tab-btn').forEach(b => b.classList.remove('active'));
+      if (business.slug === 'sai-tea') document.getElementById('btnSai')?.classList.add('active');
+      else if (business.slug === 'patil-kirana') document.getElementById('btnPatil')?.classList.add('active');
+      else if (business.slug === 'shinde-auto') document.getElementById('btnShinde')?.classList.add('active');
+
+      function renderSite() {
+        wrap.innerHTML = KhojWebsite.renderCompleteWebsite(business, spec);
+      }
+
+      renderSite();
+
+      window.addEventListener('languageChanged', renderSite);
+    });
+  </script>
+</body>
+</html>

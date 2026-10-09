@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KhojDoot — Live Website Preview (Checkpoint 2)</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .preview-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+    .flow-stepper-mini {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .flow-step-tag {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: #e2e8f0;
+      color: #475569;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .flow-step-tag.active {
+      background: var(--brand-maroon);
+      color: #ffffff;
+    }
+    .flow-step-tag.done {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .preview-controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .device-pill-group {
+      display: inline-flex;
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
+    }
+    .device-btn {
+      background: none;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .device-btn.active {
+      background: #ffffff;
+      color: #111827;
+      box-shadow: var(--shadow-sm);
+    }
+    .preview-canvas-box {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      margin: 0 auto;
+      transition: max-width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Unified Navigation Header -->
+  <header class="site-header">
+    <div class="brand-wrapper">
+      <a href="index.html" class="brand-logo">
+        <span data-i18n="brandName">KhojDoot</span> <span class="badge-beta" data-i18n="betaBadge">बीटा</span>
+      </a>
+    </div>
+
+    <nav class="nav-links">
+      <a href="index.html" class="nav-link">Hub</a>
+      <a href="login.html" class="nav-link">लॉगिन (Login)</a>
+      <a href="chat.html" class="nav-link" data-i18n="navCreate">चॅट (Chat)</a>
+      <a href="approval.html" class="nav-link" data-i18n="navApproval">मंजुरी (Approval)</a>
+      <a href="preview.html" class="nav-link active" data-i18n="navPreview">पूर्वावलोकन (Preview)</a>
+      <a href="editor.html" class="nav-link" data-i18n="navEditor">संपादक (Editor)</a>
+      <a href="merchant.html" class="nav-link" data-i18n="navMerchant">व्यापारी साइट</a>
+      <a href="card.html" class="nav-link">कार्ड</a>
+      <a href="labs.html" class="nav-link" data-i18n="navLabs">लॅब्स</a>
+    </nav>
+
+    <div class="header-actions">
+      <div id="userProfilePill" style="display: none; align-items: center; gap: 8px; font-size: 13px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 5px 12px; border-radius: 9999px;">
+        <span>👤 <strong id="userProfileName">व्यापारी</strong></span>
+      </div>
+
+      <div class="lang-dropdown-wrapper">
+        <button id="langDropdownBtn" class="lang-selector-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="currentLangLabel">मराठी</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div id="langDropdownMenu" class="lang-dropdown-menu">
+          <button class="lang-option active" data-lang="mr">मराठी</button>
+          <button class="lang-option" data-lang="hi">हिंदी</button>
+          <button class="lang-option" data-lang="te">తెలుగు</button>
+          <button class="lang-option" data-lang="en">English</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="preview-container">
+
+      <!-- Breadcrumbs -->
+      <div class="flow-stepper-mini">
+        <a href="login.html" class="flow-step-tag done">✓ 1. Login</a>
+        <a href="chat.html" class="flow-step-tag done">✓ 2. Chat</a>
+        <a href="approval.html" class="flow-step-tag done">✓ 3. Approval</a>
+        <span class="flow-step-tag active">4. Live Preview</span>
+        <a href="editor.html" class="flow-step-tag">5. Editor</a>
+      </div>
+
+      <!-- =====================================================================
+           STRICT PREVIEW GATE (LOCKED STATE IF NOT APPROVED)
+           ===================================================================== -->
+      <div id="lockedPreviewGate" class="preview-gate-locked" style="display: none; max-width: 680px; margin: 40px auto;">
+        <div class="gate-lock-icon">🔒</div>
+        <h2 style="font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 8px;" data-i18n="gateLockTitle">
+          वेबसाइट पूर्वावलोकन कुलूपबंद आहे
+        </h2>
+        <p style="font-size: 14px; line-height: 1.6; color: #64748b; margin-bottom: 24px;" data-i18n="gateLockDesc">
+          वेबसाइटचे थेट पूर्वावलोकन पाहण्यासाठी प्रथम व्यवसाय माहिती मंजुरी (Approval) स्क्रीनवर <strong>"Approved"</strong> बटनावर क्लिक करा.
+        </p>
+        <a href="approval.html" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px; text-decoration: none;">
+          मंजुरी स्क्रीनवर जा (Go to Approval) →
+        </a>
+      </div>
+
+      <!-- =====================================================================
+           UNLOCKED PREVIEW WORKSPACE (Strictly visible ONLY AFTER Approved)
+           ===================================================================== -->
+      <div id="unlockedPreviewWorkspace" style="display: none;">
+        
+        <!-- Top Toolbar -->
+        <div class="preview-controls-bar">
+          <!-- Device Frames -->
+          <div class="device-pill-group">
+            <button type="button" id="btnDesk" class="device-btn active">💻 Desktop</button>
+            <button type="button" id="btnTab" class="device-btn">📟 Tablet</button>
+            <button type="button" id="btnMob" class="device-btn">📱 Mobile</button>
+          </div>
+
+          <!-- Feature Navigation Links -->
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <a href="editor.html" class="btn btn-secondary" style="font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+              <span>🎙️</span>
+              <span>एडिटर उघडा (Edit Site)</span>
+            </a>
+            <a href="card.html" class="btn btn-secondary" style="font-size: 13px; text-decoration: none;">
+              🪪 कार्ड (Card)
+            </a>
+            <a id="publishLiveBtn" href="merchant.html" class="btn btn-primary" style="font-size: 13px; text-decoration: none;" target="_blank">
+              <span data-i18n="btnPublishText">प्रसिद्ध करा ↗</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Browser Mockup Window -->
+        <div id="previewFrame" class="preview-canvas-box" style="max-width: 100%;">
+          <div class="browser-header">
+            <span class="browser-dot red"></span>
+            <span class="browser-dot yellow"></span>
+            <span class="browser-dot green"></span>
+            <div class="browser-address-bar">
+              <span id="previewUrlLabel">khojdoot.com/merchant/shinde-auto</span>
+              <span style="color: #16a34a; font-size: 11px;" data-i18n="previewLiveBadge">● थेट पूर्वावलोकन</span>
+            </div>
+          </div>
+
+          <!-- Rendered Website Canvas -->
+          <div id="renderedSiteContent" style="min-height: 600px;">
+            <!-- Dynamically populated by KhojWebsite.renderCompleteWebsite -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    KhojDoot • <span data-i18n="footerCopyright">सर्व हक्क राखीव. खोजदूत प्रादेशिक नो-कोड वेबसाइट प्रणाली.</span>
+  </footer>
+
+  <script src="/static/js/language.js"></script>
+  <script src="/static/js/business.js"></script>
+  <script src="/static/js/website.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const lockedPreviewGate = document.getElementById('lockedPreviewGate');
+      const unlockedPreviewWorkspace = document.getElementById('unlockedPreviewWorkspace');
+      const renderedSiteContent = document.getElementById('renderedSiteContent');
+      const previewUrlLabel = document.getElementById('previewUrlLabel');
+      const publishLiveBtn = document.getElementById('publishLiveBtn');
+      const previewFrame = document.getElementById('previewFrame');
+
+      const btnDesk = document.getElementById('btnDesk');
+      const btnTab = document.getElementById('btnTab');
+      const btnMob = document.getElementById('btnMob');
+
+      // STRICT GATE CHECK: Must be approved
+      const hasApproved = localStorage.getItem('khojdoot_has_approved') === 'true';
+
+      if (!hasApproved) {
+        lockedPreviewGate.style.display = 'block';
+        unlockedPreviewWorkspace.style.display = 'none';
+      } else {
+        lockedPreviewGate.style.display = 'none';
+        unlockedPreviewWorkspace.style.display = 'block';
+        renderPreview();
+      }
+
+      function renderPreview() {
+        const biz = KhojBusiness.getCurrentBusiness();
+        const spec = KhojWebsite.getCurrentSpec();
+        renderedSiteContent.innerHTML = KhojWebsite.renderCompleteWebsite(biz, spec);
+        const slug = biz.slug || 'my-shop';
+        previewUrlLabel.textContent = `khojdoot.com/merchant/${slug}`;
+        publishLiveBtn.href = `merchant.html?slug=${slug}`;
+      }
+
+      // Viewport mode switcher
+      btnDesk.addEventListener('click', () => {
+        previewFrame.style.maxWidth = '100%';
+        [btnDesk, btnTab, btnMob].forEach(b => b.classList.remove('active'));
+        btnDesk.classList.add('active');
+      });
+
+      btnTab.addEventListener('click', () => {
+        previewFrame.style.maxWidth = '768px';
+        [btnDesk, btnTab, btnMob].forEach(b => b.classList.remove('active'));
+        btnTab.classList.add('active');
+      });
+
+      btnMob.addEventListener('click', () => {
+        previewFrame.style.maxWidth = '390px';
+        [btnDesk, btnTab, btnMob].forEach(b => b.classList.remove('active'));
+        btnMob.classList.add('active');
+      });
+
+      window.addEventListener('languageChanged', () => {
+        if (hasApproved) renderPreview();
+      });
+    });
+  </script>
+</body>
+</html>

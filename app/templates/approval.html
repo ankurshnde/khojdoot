@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KhojDoot — Business Summary Approval (Checkpoint 1)</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .approval-container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+    .flow-stepper-mini {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .flow-step-tag {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: #e2e8f0;
+      color: #475569;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .flow-step-tag.active {
+      background: var(--brand-maroon);
+      color: #ffffff;
+    }
+    .flow-step-tag.done {
+      background: #dcfce7;
+      color: #166534;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Unified Navigation Header -->
+  <header class="site-header">
+    <div class="brand-wrapper">
+      <a href="index.html" class="brand-logo">
+        <span data-i18n="brandName">KhojDoot</span> <span class="badge-beta" data-i18n="betaBadge">बीटा</span>
+      </a>
+    </div>
+
+    <nav class="nav-links">
+      <a href="index.html" class="nav-link">Hub</a>
+      <a href="login.html" class="nav-link">लॉगिन (Login)</a>
+      <a href="chat.html" class="nav-link" data-i18n="navCreate">चॅट (Chat)</a>
+      <a href="approval.html" class="nav-link active" data-i18n="navApproval">मंजुरी (Approval)</a>
+      <a href="preview.html" class="nav-link" data-i18n="navPreview">पूर्वावलोकन (Preview)</a>
+      <a href="editor.html" class="nav-link" data-i18n="navEditor">संपादक (Editor)</a>
+      <a href="merchant.html" class="nav-link" data-i18n="navMerchant">व्यापारी साइट</a>
+      <a href="card.html" class="nav-link">कार्ड</a>
+      <a href="labs.html" class="nav-link" data-i18n="navLabs">लॅब्स</a>
+    </nav>
+
+    <div class="header-actions">
+      <div id="userProfilePill" style="display: none; align-items: center; gap: 8px; font-size: 13px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 5px 12px; border-radius: 9999px;">
+        <span>👤 <strong id="userProfileName">व्यापारी</strong></span>
+      </div>
+
+      <div class="lang-dropdown-wrapper">
+        <button id="langDropdownBtn" class="lang-selector-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="currentLangLabel">मराठी</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div id="langDropdownMenu" class="lang-dropdown-menu">
+          <button class="lang-option active" data-lang="mr">मराठी</button>
+          <button class="lang-option" data-lang="hi">हिंदी</button>
+          <button class="lang-option" data-lang="te">తెలుగు</button>
+          <button class="lang-option" data-lang="en">English</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="approval-container">
+
+      <!-- Breadcrumbs -->
+      <div class="flow-stepper-mini">
+        <a href="login.html" class="flow-step-tag done">✓ 1. Login</a>
+        <a href="chat.html" class="flow-step-tag done">✓ 2. Chat</a>
+        <span class="flow-step-tag active">3. Approval</span>
+        <a href="preview.html" class="flow-step-tag">4. Preview & Edit</a>
+      </div>
+
+      <!-- Heading -->
+      <div style="margin-bottom: 24px; text-align: center;">
+        <h1 style="font-size: 26px; font-weight: 700; color: #111827; margin-bottom: 6px;" data-i18n="checkpoint1Title">
+          व्यवसाय माहिती मंजुरी
+        </h1>
+        <p style="font-size: 14px; color: #6b7280;" data-i18n="checkpoint1Desc">
+          कृपया खालील व्यवसाय माहिती तपासा. गरज असल्यास तुम्ही कोणताही मजकूर बदलू शकता.
+        </p>
+      </div>
+
+      <!-- Business Summary in Message Format -->
+      <div class="summary-side-card" style="box-shadow: var(--shadow-md);">
+        <div class="summary-msg-header">
+          <div class="summary-bot-badge">KD</div>
+          <div>
+            <div class="summary-msg-title" data-i18n="sumTitle">📋 व्यवसाय सारांश</div>
+            <div class="summary-msg-subtitle" data-i18n="sumSubtitle">कृपया खालील माहिती तपासून मंजुरी द्या</div>
+          </div>
+        </div>
+
+        <div class="summary-fact-list">
+          <div class="summary-fact-row">
+            <span class="summary-fact-label" data-i18n="sumLabelBizName">व्यवसायाचे नाव:</span>
+            <input type="text" id="editBizName" class="text-input-field" style="padding: 6px 10px; font-weight: 700; width: 60%;">
+          </div>
+          <div class="summary-fact-row">
+            <span class="summary-fact-label" data-i18n="sumLabelOwner">मालकाचे नाव:</span>
+            <input type="text" id="editOwnerName" class="text-input-field" style="padding: 6px 10px; width: 60%;">
+          </div>
+          <div class="summary-fact-row">
+            <span class="summary-fact-label" data-i18n="sumLabelPhone">मोबाइल नंबर:</span>
+            <input type="tel" id="editPhone" class="text-input-field" style="padding: 6px 10px; width: 60%;">
+          </div>
+          <div class="summary-fact-row">
+            <span class="summary-fact-label" data-i18n="sumLabelCategory">श्रेणी:</span>
+            <input type="text" id="editCategory" class="text-input-field" style="padding: 6px 10px; width: 60%;">
+          </div>
+          <div class="summary-fact-row">
+            <span class="summary-fact-label" data-i18n="sumLabelLocation">पत्ता व शहर:</span>
+            <input type="text" id="editLocation" class="text-input-field" style="padding: 6px 10px; width: 60%;">
+          </div>
+          <div class="summary-fact-row">
+            <span class="summary-fact-label" data-i18n="sumLabelHours">कामाच्या वेळा:</span>
+            <input type="text" id="editHours" class="text-input-field" style="padding: 6px 10px; width: 60%;">
+          </div>
+          <div class="summary-fact-row">
+            <span class="summary-fact-label" data-i18n="sumLabelTagline">टॅगलाइन:</span>
+            <input type="text" id="editTagline" class="text-input-field" style="padding: 6px 10px; width: 60%;">
+          </div>
+        </div>
+
+        <!-- Services Section with Add / Delete -->
+        <div class="summary-services-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div class="summary-services-title" data-i18n="sumLabelServicesHeader">पुरवल्या जाणाऱ्या सेवा व दर:</div>
+            <button type="button" id="btnAddServiceBtn" style="font-size: 12px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-weight: 600;">+ नवीन सेवा जोडा</button>
+          </div>
+          <div id="servicesList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Rejection Notice Block -->
+        <div id="rejectNoticeBlock" style="display: none; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px; margin-top: 14px;">
+          <div style="font-size: 13px; color: #991b1b; font-weight: 600; margin-bottom: 6px;">
+            ⚠️ माहिती नामंजूर केली आहे.
+          </div>
+          <p style="font-size: 12px; color: #b91c1c; margin-bottom: 8px;">
+            तुम्ही वरील मजकूर थेट दुरुस्त करू शकता किंवा अधिक तपशील देण्यासाठी चॅटकडे परत जाऊ शकता.
+          </p>
+          <a href="chat.html" style="font-size: 12px; color: #b91c1c; font-weight: 700; text-decoration: underline;">चॅटकडे परत जा →</a>
+        </div>
+
+        <!-- THE 3 REQUIRED ACTION BUTTONS: Approved, Not approved, Back -->
+        <div class="summary-actions-3">
+          <!-- 1. Approved (Yes) Button -->
+          <button type="button" id="btnApprove" class="btn-summary-approve">
+            <span data-i18n="btnApproveLabel">✓ Approved</span>
+          </button>
+
+          <!-- 2. Not approved Button -->
+          <button type="button" id="btnReject" class="btn-summary-reject">
+            <span data-i18n="btnRejectLabel">✕ Not approved</span>
+          </button>
+
+          <!-- 3. Back Button -->
+          <button type="button" id="btnBack" class="btn-summary-back">
+            <span data-i18n="btnBackLabel">← Back</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    KhojDoot • <span data-i18n="footerCopyright">सर्व हक्क राखीव. खोजदूत प्रादेशिक नो-कोड वेबसाइट प्रणाली.</span>
+  </footer>
+
+  <script src="/static/js/language.js"></script>
+  <script src="/static/js/business.js"></script>
+  <script src="/static/js/website.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const editBizName = document.getElementById('editBizName');
+      const editOwnerName = document.getElementById('editOwnerName');
+      const editPhone = document.getElementById('editPhone');
+      const editCategory = document.getElementById('editCategory');
+      const editLocation = document.getElementById('editLocation');
+      const editHours = document.getElementById('editHours');
+      const editTagline = document.getElementById('editTagline');
+      const servicesList = document.getElementById('servicesList');
+      const btnAddServiceBtn = document.getElementById('btnAddServiceBtn');
+      const rejectNoticeBlock = document.getElementById('rejectNoticeBlock');
+
+      const btnApprove = document.getElementById('btnApprove');
+      const btnReject = document.getElementById('btnReject');
+      const btnBack = document.getElementById('btnBack');
+
+      let currentBiz = KhojBusiness.getCurrentBusiness();
+
+      function loadBusinessData() {
+        currentBiz = KhojBusiness.getCurrentBusiness();
+        editBizName.value = currentBiz.name || '';
+        editOwnerName.value = currentBiz.ownerName || '';
+        editPhone.value = currentBiz.phone || '';
+        editCategory.value = currentBiz.category || '';
+        editLocation.value = `${currentBiz.address || ''} ${currentBiz.city || ''}`.trim();
+        editHours.value = currentBiz.hours || '';
+        editTagline.value = currentBiz.tagline || currentBiz.description || '';
+
+        renderServices();
+      }
+
+      function renderServices() {
+        const svcs = currentBiz.services || [];
+        if (!svcs.length) {
+          servicesList.innerHTML = `<div style="font-size: 13px; color: #94a3b8;">कोणतीही सेवा जोडलेली नाही. वरून सेवा जोडा.</div>`;
+          return;
+        }
+
+        servicesList.innerHTML = svcs.map((s, idx) => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #e2e8f0;">
+            <div>
+              <strong style="color: #1e293b; font-size: 13.5px;">${s.name}</strong>
+              <span style="font-size: 12px; color: #64748b; margin-left: 8px;">${s.description || ''}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="color: var(--brand-maroon); font-weight: 700; font-size: 13px;">${s.price || ''}</span>
+              <button type="button" class="del-svc" data-idx="${idx}" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 16px;">×</button>
+            </div>
+          </div>
+        `).join('');
+
+        document.querySelectorAll('.del-svc').forEach(b => {
+          b.addEventListener('click', (e) => {
+            const idx = parseInt(e.target.getAttribute('data-idx'), 10);
+            currentBiz.services.splice(idx, 1);
+            KhojBusiness.saveCurrentBusiness(currentBiz);
+            renderServices();
+          });
+        });
+      }
+
+      btnAddServiceBtn.addEventListener('click', () => {
+        const name = prompt(KhojLanguage.getLanguage() === 'en' ? "Service Name:" : "सेवेचे नाव:");
+        if (!name) return;
+        const price = prompt(KhojLanguage.getLanguage() === 'en' ? "Price or Rate:" : "किंमत / दर:");
+        if (!currentBiz.services) currentBiz.services = [];
+        currentBiz.services.push({ name: name.trim(), price: price ? price.trim() : 'योग्य दरात', description: '' });
+        KhojBusiness.saveCurrentBusiness(currentBiz);
+        renderServices();
+      });
+
+      function saveFormChanges() {
+        currentBiz.name = editBizName.value.trim();
+        currentBiz.ownerName = editOwnerName.value.trim();
+        currentBiz.phone = editPhone.value.trim();
+        currentBiz.category = editCategory.value.trim();
+        currentBiz.city = editLocation.value.trim();
+        currentBiz.hours = editHours.value.trim();
+        currentBiz.tagline = editTagline.value.trim();
+        KhojBusiness.saveCurrentBusiness(currentBiz);
+      }
+
+      // BUTTON 1: Approved -> Unlocks preview & redirects to preview.html!
+      btnApprove.addEventListener('click', () => {
+        saveFormChanges();
+        KhojBusiness.approveBusinessInfo(currentBiz);
+
+        // Set persistent approval flag
+        localStorage.setItem('khojdoot_has_approved', 'true');
+
+        KhojApp.showToast(KhojLanguage.t('toastApprovedMsg'), "success");
+
+        // Connected redirect to preview.html!
+        setTimeout(() => {
+          window.location.href = 'preview.html';
+        }, 600);
+      });
+
+      // BUTTON 2: Not approved -> shows notice and allows user to refine or go back
+      btnReject.addEventListener('click', () => {
+        localStorage.setItem('khojdoot_has_approved', 'false');
+        rejectNoticeBlock.style.display = 'block';
+        KhojApp.showToast(KhojLanguage.t('botRejectedNotice'), "warning");
+      });
+
+      // BUTTON 3: Back -> navigates back to chat.html
+      btnBack.addEventListener('click', () => {
+        window.location.href = 'chat.html';
+      });
+
+      loadBusinessData();
+    });
+  </script>
+</body>
+</html>

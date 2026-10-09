@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KhojDoot — Feature Hub</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .hub-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 20px 60px;
+    }
+    .hero-banner {
+      background: linear-gradient(135deg, #731c34 0%, #1e293b 100%);
+      color: #ffffff;
+      padding: 40px 32px;
+      border-radius: var(--radius-lg);
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-md);
+    }
+    .hero-banner h1 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .hero-banner p {
+      font-size: 16px;
+      opacity: 0.9;
+      max-width: 680px;
+      line-height: 1.6;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .feature-card {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .feature-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: #cbd5e1;
+    }
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+      border: 1px solid #e2e8f0;
+    }
+    .feature-step {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--brand-maroon);
+      margin-bottom: 6px;
+    }
+    .feature-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+    .feature-desc {
+      font-size: 13.5px;
+      color: #6b7280;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+    .feature-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--brand-maroon);
+      text-decoration: none;
+      padding: 8px 14px;
+      background: var(--brand-maroon-light);
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .feature-link:hover {
+      background: var(--brand-maroon);
+      color: #ffffff;
+    }
+    .stepper-flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      padding: 16px 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+      margin-bottom: 28px;
+      overflow-x: auto;
+    }
+    .step-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4b5563;
+      white-space: nowrap;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      background: #f1f5f9;
+      transition: all 0.2s;
+    }
+    .step-pill:hover, .step-pill.active {
+      background: var(--brand-maroon);
+      color: #ffffff;
+    }
+    .step-arrow {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Unified Header -->
+  <header class="site-header">
+    <div class="brand-wrapper">
+      <a href="index.html" class="brand-logo">
+        <span data-i18n="brandName">KhojDoot</span> <span class="badge-beta" data-i18n="betaBadge">बीटा</span>
+      </a>
+    </div>
+
+    <nav class="nav-links">
+      <a href="index.html" class="nav-link active">Hub</a>
+      <a href="login.html" class="nav-link">लॉगिन (Login)</a>
+      <a href="chat.html" class="nav-link" data-i18n="navCreate">चॅट (Chat)</a>
+      <a href="approval.html" class="nav-link" data-i18n="navApproval">मंजुरी (Approval)</a>
+      <a href="preview.html" class="nav-link" data-i18n="navPreview">पूर्वावलोकन (Preview)</a>
+      <a href="editor.html" class="nav-link" data-i18n="navEditor">संपादक (Editor)</a>
+      <a href="merchant.html" class="nav-link" data-i18n="navMerchant">व्यापारी साइट</a>
+      <a href="card.html" class="nav-link">कार्ड</a>
+      <a href="labs.html" class="nav-link" data-i18n="navLabs">लॅब्स</a>
+    </nav>
+
+    <div class="header-actions">
+      <div id="userProfilePill" style="display: none; align-items: center; gap: 8px; font-size: 13px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 5px 12px; border-radius: 9999px;">
+        <span>👤 <strong id="userProfileName">व्यापारी</strong> (<span id="userProfilePhone">---</span>)</span>
+        <a href="login.html" style="color: #dc2626; font-size: 12px; font-weight: 600; text-decoration: underline;" data-i18n="userChangeBtn">बदला</a>
+      </div>
+
+      <div class="lang-dropdown-wrapper">
+        <button id="langDropdownBtn" class="lang-selector-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="currentLangLabel">मराठी</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div id="langDropdownMenu" class="lang-dropdown-menu">
+          <button class="lang-option active" data-lang="mr">मराठी</button>
+          <button class="lang-option" data-lang="hi">हिंदी</button>
+          <button class="lang-option" data-lang="te">తెలుగు</button>
+          <button class="lang-option" data-lang="en">English</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="hub-container">
+      
+      <!-- Top Hero -->
+      <div class="hero-banner">
+        <h1>खोजदूत फिचर हब (Connected Feature Suite)</h1>
+        <p>प्रत्येक फिचर स्वतंत्र HTML फाईलमध्ये उपलब्ध असून सर्व फिचर्स एकमेकांशी अखंड जोडलेले आहेत. तुम्ही कोणत्याही पायरीवरून सुरुवात करू शकता किंवा संपूर्ण वर्कफ्लो अनुभवू शकता.</p>
+      </div>
+
+      <!-- Linear Connected Workflow Stepper -->
+      <div class="stepper-flow">
+        <a href="login.html" class="step-pill">1. 🔐 लॉगिन (Login)</a>
+        <span class="step-arrow">→</span>
+        <a href="chat.html" class="step-pill">2. 💬 चॅट व आवाज (Chat)</a>
+        <span class="step-arrow">→</span>
+        <a href="approval.html" class="step-pill">3. 📋 मंजुरी (Approval)</a>
+        <span class="step-arrow">→</span>
+        <a href="preview.html" class="step-pill">4. 👁️ पूर्वावलोकन (Preview)</a>
+        <span class="step-arrow">→</span>
+        <a href="editor.html" class="step-pill">5. 🎙️ व्हॉइस एडिटर (Editor)</a>
+        <span class="step-arrow">→</span>
+        <a href="merchant.html" class="step-pill">6. 🌐 लाईव्ह साइट (Merchant)</a>
+      </div>
+
+      <!-- Feature Grid -->
+      <div class="features-grid">
+
+        <!-- Card 1: Login -->
+        <div class="feature-card">
+          <div>
+            <div class="feature-icon">🔐</div>
+            <div class="feature-step">पायरी १ / Step 1</div>
+            <h3 class="feature-title">लॉगिन आणि ४-अंकी OTP गेट (Login & OTP)</h3>
+            <p class="feature-desc">नाव आणि अचूक १० अंकी फोन नंबर. "Send OTP" क्लिक केल्यावर ४ अंकी डेमो OTP (1234) मिळतो आणि "Verify" बटनाने पडताळणी होते.</p>
+          </div>
+          <a href="login.html" class="feature-link">लॉगिन सुरू करा →</a>
+        </div>
+
+        <!-- Card 2: Chat -->
+        <div class="feature-card">
+          <div>
+            <div class="feature-icon">💬</div>
+            <div class="feature-step">पायरी २ / Step 2</div>
+            <h3 class="feature-title">व्यवसाय ऑनबोर्डिंग चॅट (Business Chat)</h3>
+            <p class="feature-desc">मजकूर, थेट व्हॉइस टायपिंग (Web Speech) आणि फोटो/रेट कार्ड जोडून व्यवसायाची माहिती द्या. तत्काळ माहिती विश्लेषण केले जाते.</p>
+          </div>
+          <a href="chat.html" class="feature-link">चॅट सुरू करा →</a>
+        </div>
+
+        <!-- Card 3: Approval -->
+        <div class="feature-card">
+          <div>
+            <div class="feature-icon">📋</div>
+            <div class="feature-step">पायरी ३ / Step 3 (Checkpoint 1)</div>
+            <h3 class="feature-title">व्यवसाय सारांश मंजुरी (Summary Approval)</h3>
+            <p class="feature-desc">मेसेज फॉरमॅटमध्ये माहिती सारांश. तळाशी ३ बटणे: <strong>Approved</strong>, <strong>Not approved</strong>, आणि <strong>Back</strong>. मंजुरीनंतरच पुढील पायरी अनलॉक होते.</p>
+          </div>
+          <a href="approval.html" class="feature-link">मंजुरी तपासा →</a>
+        </div>
+
+        <!-- Card 4: Preview -->
+        <div class="feature-card">
+          <div>
+            <div class="feature-icon">👁️</div>
+            <div class="feature-step">पायरी ४ / Step 4 (Checkpoint 2)</div>
+            <h3 class="feature-title">वेबसाइट पूर्वावलोकन (Website Preview)</h3>
+            <p class="feature-desc">कठोर कुलूपबंद नियम (Strict Gate): 'Approved' असल्यासच दिसते. डेस्कटॉप, टॅबलेट आणि मोबाईल अशा तिन्ही व्ह्यूमध्ये लाईव्ह पाहा.</p>
+          </div>
+          <a href="preview.html" class="feature-link">पूर्वावलोकन पहा →</a>
+        </div>
+
+        <!-- Card 5: Editor -->
+        <div class="feature-card">
+          <div>
+            <div class="feature-icon">🎙️</div>
+            <div class="feature-step">पायरी ५ / Step 5 (Live Editor)</div>
+            <h3 class="feature-title">व्हॉइस व चॅट एडिटर (Conversational Editor)</h3>
+            <p class="feature-desc">एकाच स्क्रीनवर डावीकडे बोलून/टाइप करून बदल सांगा (उदा. "रंग भगवा करा", "सेवा जोडा") आणि उजवीकडे तात्काळ बदलणारे लाईव्ह पूर्वावलोकन पाहा.</p>
+          </div>
+          <a href="editor.html" class="feature-link">एडिटर उघडा →</a>
+        </div>
+
+        <!-- Card 6: Merchant Site -->
+        <div class="feature-card">
+          <div>
+            <div class="feature-icon">🌐</div>
+            <div class="feature-step">पायरी ६ / Step 6 (Published Web)</div>
+            <h3 class="feature-title">प्रसिद्ध व्यापारी वेबसाइट (Live Merchant Site)</h3>
+            <p class="feature-desc">ग्राहकांसाठी तयार असलेली संपूर्ण डिजिटल उपस्थिती. हिरो बॅनर, सेवांची यादी, गॅलरी, गुगल मॅप्स आणि व्हॉट्सॲप मेसेजिंग.</p>
+          </div>
+          <a href="merchant.html" class="feature-link">वेबसाइट उघडा →</a>
+        </div>
+
+        <!-- Card 7: Khoj Card -->
+        <div class="feature-card">
+          <div>
+            <div class="feature-icon">🪪</div>
+            <div class="feature-step">शेअरिंग / Sharing</div>
+            <h3 class="feature-title">खोज कार्ड (Khoj Card)</h3>
+            <p class="feature-desc">व्हॉट्सॲपवर पाठवण्यासाठी डिझाइन केलेले हलके, जलद उघडणारे डिजिटल कार्ड आणि Schema.org LocalBusiness सिमेंटिक डेटा.</p>
+          </div>
+          <a href="card.html" class="feature-link">कार्ड पहा →</a>
+        </div>
+
+        <!-- Card 8: Labs -->
+        <div class="feature-card">
+          <div>
+            <div class="feature-icon">🔬</div>
+            <div class="feature-step">टेलिमेट्री / Telemetry</div>
+            <h3 class="feature-title">खोजदूत लॅब्स (Telemetry & Validation)</h3>
+            <p class="feature-desc">पाइपलाइन ट्रॅकर: सर्व दुकानांची स्थिती (Draft ते Published पर्यंतचे ६ टप्पे) आणि ८-पॉइंट गुणवत्ता पडताळणी स्कोअरकार्ड.</p>
+          </div>
+          <a href="labs.html" class="feature-link">लॅब्स उघडा →</a>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    KhojDoot • सर्व हक्क राखीव. कनेक्टेड फिचर सुइट.
+  </footer>
+
+  <script src="/static/js/language.js"></script>
+  <script src="/static/js/business.js"></script>
+  <script src="/static/js/website.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const u = JSON.parse(localStorage.getItem('khojdoot_user') || '{}');
+        if (u && u.phone) {
+          document.getElementById('userProfileName').textContent = u.name || 'व्यापारी';
+          document.getElementById('userProfilePhone').textContent = u.phone;
+          document.getElementById('userProfilePill').style.display = 'inline-flex';
+        }
+      } catch(e) {}
+    });
+  </script>
+</body>
+</html>

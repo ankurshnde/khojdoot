@@ -37,10 +37,14 @@ app.add_middleware(
 )
 
 # Static mounts
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
 if os.path.exists(settings.GENERATED_DIR):
     app.mount("/static/generated", StaticFiles(directory=settings.GENERATED_DIR), name="generated")
 if os.path.exists(settings.UPLOAD_DIR):
     app.mount("/static/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
+
 
 # Include Routers
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication & OTP"])
@@ -60,9 +64,24 @@ def health_check():
     }
 
 
-@app.get("/", tags=["Root"])
-def root():
+@app.get("/api", tags=["Root"])
+def api_root():
     return {
         "message": "Welcome to KhojDoot API. Check /docs for documentation.",
         "health": "/health",
     }
+
+
+@app.get("/", tags=["Root"])
+def root():
+    import os
+    from fastapi.responses import HTMLResponse
+    template_path = os.path.join(os.path.dirname(__file__), "templates", "index.html")
+    if os.path.exists(template_path):
+        with open(template_path, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return {
+        "message": "Welcome to KhojDoot API. Check /docs for documentation.",
+        "health": "/health",
+    }
+

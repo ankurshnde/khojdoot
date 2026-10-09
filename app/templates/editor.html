@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KhojDoot — Conversational & Voice Website Editor</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .editor-layout-grid {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 24px;
+      padding: 24px 20px 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      align-items: start;
+    }
+    @media (max-width: 1024px) {
+      .editor-layout-grid {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+    }
+    .voice-console-card {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+    }
+    .preview-sticky-pane {
+      position: sticky;
+      top: 84px;
+    }
+    .voice-mic-active-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      animation: pulse 1.5s infinite;
+    }
+    .color-dots-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .color-dot-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 1px #cbd5e1;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .color-dot-btn:hover {
+      transform: scale(1.15);
+    }
+    .color-dot-btn.active {
+      box-shadow: 0 0 0 2px var(--brand-maroon);
+      transform: scale(1.15);
+    }
+    .chips-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .chip-item {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 12.5px;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chip-item:hover {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+      color: #111827;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Unified Navigation Header -->
+  <header class="site-header">
+    <div class="brand-wrapper">
+      <a href="index.html" class="brand-logo">
+        <span data-i18n="brandName">KhojDoot</span> <span class="badge-beta" data-i18n="betaBadge">बीटा</span>
+      </a>
+    </div>
+
+    <nav class="nav-links">
+      <a href="index.html" class="nav-link">Hub</a>
+      <a href="login.html" class="nav-link">लॉगिन (Login)</a>
+      <a href="chat.html" class="nav-link" data-i18n="navCreate">चॅट (Chat)</a>
+      <a href="approval.html" class="nav-link" data-i18n="navApproval">मंजुरी (Approval)</a>
+      <a href="preview.html" class="nav-link" data-i18n="navPreview">पूर्वावलोकन (Preview)</a>
+      <a href="editor.html" class="nav-link active" data-i18n="navEditor">संपादक (Editor)</a>
+      <a href="merchant.html" class="nav-link" data-i18n="navMerchant">व्यापारी साइट</a>
+      <a href="card.html" class="nav-link">कार्ड</a>
+      <a href="labs.html" class="nav-link" data-i18n="navLabs">लॅब्स</a>
+    </nav>
+
+    <div class="header-actions">
+      <div id="userProfilePill" style="display: none; align-items: center; gap: 8px; font-size: 13px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 5px 12px; border-radius: 9999px;">
+        <span>👤 <strong id="userProfileName">व्यापारी</strong></span>
+      </div>
+
+      <div class="lang-dropdown-wrapper">
+        <button id="langDropdownBtn" class="lang-selector-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="currentLangLabel">मराठी</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div id="langDropdownMenu" class="lang-dropdown-menu">
+          <button class="lang-option active" data-lang="mr">मराठी</button>
+          <button class="lang-option" data-lang="hi">हिंदी</button>
+          <button class="lang-option" data-lang="te">తెలుగు</button>
+          <button class="lang-option" data-lang="en">English</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="editor-layout-grid">
+
+      <!-- LEFT COLUMN: Conversational & Voice Editing Console -->
+      <section>
+        
+        <!-- Header -->
+        <div style="margin-bottom: 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <h1 style="font-size: 24px; font-weight: 700; color: #111827; margin-bottom: 4px;" data-i18n="editorVoiceTitle">
+              🎙️ बोलून किंवा चॅटने बदल करा
+            </h1>
+            <span style="font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 9999px; font-weight: 600;" data-i18n="editorLiveBadge">
+              थेट संपादन
+            </span>
+          </div>
+          <p style="font-size: 13.5px; color: #6b7280; line-height: 1.5;" data-i18n="editorHelpText">
+            तुम्ही आवाजाने बोलू शकता जसे की: 'थीम रंग भगवा करा', 'कार वॉश सेवा 299 रुपयांना जोडा', किंवा 'कामाच्या वेळा सकाळी 9 ते रात्री 9 करा'.
+          </p>
+        </div>
+
+        <!-- Voice & Chat Input Box -->
+        <div class="voice-console-card">
+          <label style="font-size: 13px; font-weight: 600; color: #374151; display: block; margin-bottom: 6px;">
+            बदल सांगा किंवा लिहा (Voice or Text Instruction):
+          </label>
+          <div class="input-card" style="padding: 10px 14px;">
+            <textarea 
+              id="editInstructionInput" 
+              class="input-field" 
+              rows="3" 
+              data-i18n="editorPlaceholder"
+              placeholder="वेबसाइटमध्ये काय बदल करायचे आहेत ते सांगा किंवा लिहा..."
+            ></textarea>
+
+            <div class="input-bar-bottom" style="margin-top: 8px; padding-top: 8px;">
+              <div class="input-tools">
+                <!-- Mic Button for Voice Typing -->
+                <button type="button" id="editVoiceMicBtn" class="tool-btn" data-i18n-title="btnVoice" title="बोलून बदल सांगा (Voice Typing)">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  </svg>
+                </button>
+                <span id="editVoiceStatus" style="font-size: 12px; color: #6b7280;" data-i18n="editorMicPrompt">माईक वर क्लिक करा</span>
+              </div>
+
+              <!-- Apply Button -->
+              <button type="button" id="btnApplyEdit" class="submit-btn" data-i18n-title="toastEditApplied" title="बदल लागू करा">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Action Edit Pills -->
+          <div style="margin-top: 16px;">
+            <div style="font-size: 12px; color: #94a3af; margin-bottom: 6px;">त्वरित बदल (Quick Commands):</div>
+            <div class="chips-row">
+              <button type="button" class="chip-item edit-quick-pill" data-cmd="थीम रंग भगवा करा" data-cmd-en="Change theme color to saffron"><span data-i18n="editorPillSaffron">🟠 भगवा थीम (Saffron)</span></button>
+              <button type="button" class="chip-item edit-quick-pill" data-cmd="थीम रंग आधुनिक निळा करा" data-cmd-en="Change theme color to blue"><span data-i18n="editorPillBlue">🔵 निळा थीम (Blue)</span></button>
+              <button type="button" class="chip-item edit-quick-pill" data-cmd="थीम रंग हिरवा करा" data-cmd-en="Change theme color to green"><span data-i18n="editorPillGreen">🟢 हिरवा थीम (Green)</span></button>
+              <button type="button" class="chip-item edit-quick-pill" data-cmd="नवीन सेवा जोडा कार वॉश ₹299" data-cmd-en="Add service Car Wash ₹299"><span data-i18n="editorPillService">➕ सेवा जोडा (₹299)</span></button>
+              <button type="button" class="chip-item edit-quick-pill" data-cmd="गॅलरी लपवा" data-cmd-en="Hide gallery"><span data-i18n="editorPillGallery">🖼️ गॅलरी लपवा</span></button>
+              <button type="button" class="chip-item edit-quick-pill" data-cmd="गॅलरी दाखवा" data-cmd-en="Show gallery">🖼️ गॅलरी दाखवा</button>
+            </div>
+          </div>
+
+          <!-- Visual Theme Swatches -->
+          <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 13px; font-weight: 600; color: #374151;" data-i18n="editorColorChoose">थीम रंग निवडा:</span>
+            <div class="color-dots-row">
+              <div class="color-dot-btn active" style="background-color: #731c34;" data-c="#731c34" title="Maroon"></div>
+              <div class="color-dot-btn" style="background-color: #f0a000;" data-c="#f0a000" title="Saffron"></div>
+              <div class="color-dot-btn" style="background-color: #2563eb;" data-c="#2563eb" title="Blue"></div>
+              <div class="color-dot-btn" style="background-color: #16a34a;" data-c="#16a34a" title="Green"></div>
+              <div class="color-dot-btn" style="background-color: #1e293b;" data-c="#1e293b" title="Dark Slate"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Toggles Card -->
+        <div class="voice-console-card">
+          <div style="font-weight: 700; font-size: 14px; color: #111827; margin-bottom: 12px;" data-i18n="labelSectionVisibility">
+            विभाग दाखवा किंवा लपवा (Section Visibility)
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; cursor: pointer;">
+              <input type="checkbox" id="chkServices" checked>
+              <span data-i18n="secServices">सेवा आणि उत्पादने (Services)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; cursor: pointer;">
+              <input type="checkbox" id="chkGallery" checked>
+              <span data-i18n="secGallery">छायाचित्रे गॅलरी (Gallery)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; cursor: pointer;">
+              <input type="checkbox" id="chkContact" checked>
+              <span data-i18n="secContact">पत्ता आणि संपर्क (Contact & Hours)</span>
+            </label>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT COLUMN: Live Updating Website Preview (Same Screen) -->
+      <section class="preview-sticky-pane">
+        
+        <div class="browser-mockup">
+          <div class="browser-header">
+            <span class="browser-dot red"></span>
+            <span class="browser-dot yellow"></span>
+            <span class="browser-dot green"></span>
+            <div class="browser-address-bar">
+              <span id="previewBarUrl">khojdoot.com/merchant/shinde-auto</span>
+              <span style="color: #16a34a; font-size: 11px;" data-i18n="previewLiveBadge">● थेट पूर्वावलोकन</span>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <a id="btnPublishSite" href="merchant.html" class="btn btn-primary" style="padding: 2px 10px; font-size: 11px; text-decoration: none;" target="_blank" data-i18n="btnPublishText">
+                प्रसिद्ध करा ↗
+              </a>
+            </div>
+          </div>
+
+          <!-- Live Rendered Website Container -->
+          <div id="sitePreviewBody" class="browser-content" style="max-height: 720px; overflow-y: auto;">
+            <!-- Dynamically rendered by KhojWebsite.renderCompleteWebsite -->
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    KhojDoot • <span data-i18n="footerCopyright">सर्व हक्क राखीव. खोजदूत प्रादेशिक नो-कोड वेबसाइट प्रणाली.</span>
+  </footer>
+
+  <script src="/static/js/language.js"></script>
+  <script src="/static/js/business.js"></script>
+  <script src="/static/js/website.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const editInstructionInput = document.getElementById('editInstructionInput');
+      const editVoiceMicBtn = document.getElementById('editVoiceMicBtn');
+      const editVoiceStatus = document.getElementById('editVoiceStatus');
+      const btnApplyEdit = document.getElementById('btnApplyEdit');
+      const sitePreviewBody = document.getElementById('sitePreviewBody');
+      const previewBarUrl = document.getElementById('previewBarUrl');
+      const btnPublishSite = document.getElementById('btnPublishSite');
+
+      const chkServices = document.getElementById('chkServices');
+      const chkGallery = document.getElementById('chkGallery');
+      const chkContact = document.getElementById('chkContact');
+
+      let isRecording = false;
+      let speechRecognition = null;
+
+      function renderLiveWebsite() {
+        const biz = KhojBusiness.getCurrentBusiness();
+        const spec = KhojWebsite.getCurrentSpec();
+
+        sitePreviewBody.innerHTML = KhojWebsite.renderCompleteWebsite(biz, spec);
+        const slug = biz.slug || 'my-shop';
+        previewBarUrl.textContent = `khojdoot.com/merchant/${slug}`;
+        btnPublishSite.href = `merchant.html?slug=${slug}`;
+
+        chkServices.checked = KhojWebsite.isSectionEnabled(spec, 'services');
+        chkGallery.checked = KhojWebsite.isSectionEnabled(spec, 'gallery');
+        chkContact.checked = KhojWebsite.isSectionEnabled(spec, 'contact');
+      }
+
+      function applyEdit(instructionText) {
+        if (!instructionText || !instructionText.trim()) return;
+
+        const biz = KhojBusiness.getCurrentBusiness();
+        const spec = KhojWebsite.getCurrentSpec();
+
+        const result = KhojWebsite.applyConversationalEdit(instructionText, biz, spec);
+
+        renderLiveWebsite();
+        const changeMsg = result.changes.join(', ') || KhojLanguage.t('toastEditApplied');
+        KhojApp.showToast(changeMsg, 'success');
+        editInstructionInput.value = '';
+      }
+
+      btnApplyEdit.addEventListener('click', () => {
+        applyEdit(editInstructionInput.value);
+      });
+
+      editInstructionInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          applyEdit(editInstructionInput.value);
+        }
+      });
+
+      // Quick Action Pills
+      document.querySelectorAll('.edit-quick-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          const isEn = KhojLanguage.getLanguage() === 'en';
+          const cmd = (isEn && pill.getAttribute('data-cmd-en')) ? pill.getAttribute('data-cmd-en') : pill.getAttribute('data-cmd');
+          applyEdit(cmd);
+        });
+      });
+
+      // Color Dots
+      document.querySelectorAll('.color-dot-btn').forEach(dot => {
+        dot.addEventListener('click', () => {
+          document.querySelectorAll('.color-dot-btn').forEach(d => d.classList.remove('active'));
+          dot.classList.add('active');
+          const color = dot.getAttribute('data-c');
+          const spec = KhojWebsite.getCurrentSpec();
+          spec.theme.primaryColor = color;
+          KhojWebsite.saveCurrentSpec(spec);
+          renderLiveWebsite();
+          KhojApp.showToast(`${KhojLanguage.getLanguage() === 'en' ? 'Theme color changed to:' : 'थीम रंग बदलला:'} ${color}`, 'success');
+        });
+      });
+
+      // Checkbox toggles
+      function syncCheckboxes() {
+        const spec = KhojWebsite.getCurrentSpec();
+        const sSvc = spec.sections.find(s => s.id === 'services');
+        if (sSvc) sSvc.enabled = chkServices.checked;
+        const sGal = spec.sections.find(s => s.id === 'gallery');
+        if (sGal) sGal.enabled = chkGallery.checked;
+        const sCon = spec.sections.find(s => s.id === 'contact');
+        if (sCon) sCon.enabled = chkContact.checked;
+        KhojWebsite.saveCurrentSpec(spec);
+        renderLiveWebsite();
+      }
+
+      chkServices.addEventListener('change', syncCheckboxes);
+      chkGallery.addEventListener('change', syncCheckboxes);
+      chkContact.addEventListener('change', syncCheckboxes);
+
+      // Voice recognition engine
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      function startVoice() {
+        isRecording = true;
+        editVoiceMicBtn.classList.add('recording');
+        editVoiceStatus.textContent = KhojLanguage.t('voiceListening');
+        editVoiceStatus.style.color = "#dc2626";
+
+        const curLang = KhojLanguage.getLanguage();
+        const langCode = curLang === 'mr' ? 'mr-IN' : curLang === 'hi' ? 'hi-IN' : curLang === 'te' ? 'te-IN' : 'en-IN';
+
+        if (SpeechRecognition) {
+          try {
+            speechRecognition = new SpeechRecognition();
+            speechRecognition.lang = langCode;
+            speechRecognition.continuous = false;
+            speechRecognition.interimResults = true;
+
+            speechRecognition.onresult = (e) => {
+              const res = Array.from(e.results).map(r => r[0].transcript).join('');
+              if (res) {
+                editInstructionInput.value = res;
+              }
+            };
+
+            speechRecognition.onerror = () => simulateVoice();
+            speechRecognition.onend = stopVoice;
+            speechRecognition.start();
+          } catch(e) {
+            simulateVoice();
+          }
+        } else {
+          simulateVoice();
+        }
+      }
+
+      function simulateVoice() {
+        setTimeout(() => {
+          if (!isRecording) return;
+          const isEn = KhojLanguage.getLanguage() === 'en';
+          const simText = isEn ? "Change theme color to saffron" : "थीम रंग भगवा करा";
+          editInstructionInput.value = simText;
+          stopVoice();
+          KhojApp.showToast(KhojLanguage.t('toastVoiceTranscribed'), "info");
+        }, 1800);
+      }
+
+      function stopVoice() {
+        isRecording = false;
+        editVoiceMicBtn.classList.remove('recording');
+        editVoiceStatus.textContent = KhojLanguage.t('editorMicPrompt');
+        editVoiceStatus.style.color = "#6b7280";
+        if (speechRecognition) {
+          try { speechRecognition.stop(); } catch(e) {}
+          speechRecognition = null;
+        }
+      }
+
+      editVoiceMicBtn.addEventListener('click', () => {
+        if (isRecording) stopVoice();
+        else startVoice();
+      });
+
+      window.addEventListener('languageChanged', renderLiveWebsite);
+
+      renderLiveWebsite();
+    });
+  </script>
+</body>
+</html>

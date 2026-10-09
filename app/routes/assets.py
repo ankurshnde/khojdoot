@@ -81,37 +81,71 @@ def view_robots():
 
 # --- Frontend Templates & Legacy Compatibility Routes ---
 
-@router.get("/merchant/{slug}/card", response_class=HTMLResponse)
-def view_khoj_card(slug: str):
-    """Renders the visual Khoj Card template."""
+def _render_template(filename: str) -> str:
     import os
-    template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "card.html")
+    template_path = os.path.join(os.path.dirname(__file__), "..", "templates", filename)
     if os.path.exists(template_path):
         with open(template_path, "r", encoding="utf-8") as f:
             return f.read()
-    raise HTTPException(status_code=404, detail="Template not found")
+    raise HTTPException(status_code=404, detail=f"Template {filename} not found")
+
+
+@router.get("/", response_class=HTMLResponse)
+def view_index_hub():
+    """Renders the main KhojDoot Feature Hub."""
+    return _render_template("index.html")
+
+
+@router.get("/login", response_class=HTMLResponse)
+def view_login_page():
+    """Renders the 10-digit mobile login and OTP gate."""
+    return _render_template("login.html")
+
+
+@router.get("/chat", response_class=HTMLResponse)
+def view_chat_page():
+    """Renders the conversational multimodal onboarding interface."""
+    return _render_template("chat.html")
+
+
+@router.get("/approval", response_class=HTMLResponse)
+@router.get("/business-approval", response_class=HTMLResponse)
+def view_approval_page():
+    """Renders Checkpoint 1 business summary approval card."""
+    return _render_template("approval.html")
+
+
+@router.get("/preview", response_class=HTMLResponse)
+@router.get("/website-preview", response_class=HTMLResponse)
+def view_preview_page():
+    """Renders Checkpoint 2 strictly gated preview."""
+    return _render_template("preview.html")
+
+
+@router.get("/editor", response_class=HTMLResponse)
+@router.get("/edit-website", response_class=HTMLResponse)
+def view_editor_page():
+    """Renders the live split-screen conversational and voice website editor."""
+    return _render_template("editor.html")
+
+
+@router.get("/merchant/{slug}/card", response_class=HTMLResponse)
+def view_khoj_card(slug: str):
+    """Renders the visual Khoj Card template."""
+    return _render_template("card.html")
 
 
 @router.get("/labs", response_class=HTMLResponse)
 def view_labs():
     """Renders the KhojDoot Labs telemetry dashboard."""
-    import os
-    template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "labs.html")
-    if os.path.exists(template_path):
-        with open(template_path, "r", encoding="utf-8") as f:
-            return f.read()
-    raise HTTPException(status_code=404, detail="Template not found")
+    return _render_template("labs.html")
 
 
 @router.get("/upload", response_class=HTMLResponse)
 def view_upload_form():
     """Renders the merchant shop upload form."""
-    import os
-    template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "upload.html")
-    if os.path.exists(template_path):
-        with open(template_path, "r", encoding="utf-8") as f:
-            return f.read()
-    raise HTTPException(status_code=404, detail="Template not found")
+    return _render_template("upload.html")
+
 
 
 @router.get("/b/{slug}.json")
