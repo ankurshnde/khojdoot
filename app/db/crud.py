@@ -98,3 +98,48 @@ def get_latest_website_spec(shop_id: int) -> Optional[Dict[str, Any]]:
     ).fetchone()
     conn.close()
     return json.loads(row["spec_data"]) if row else None
+
+
+def save_photo(shop_id: int, filename: str, source: str = "upload"):
+    conn = get_connection()
+    conn.execute(
+        "INSERT INTO photos (shop_id, filename, source) VALUES (?, ?, ?)",
+        (shop_id, filename, source),
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_photos(shop_id: int) -> List[Dict[str, Any]]:
+    conn = get_connection()
+    rows = conn.execute(
+        "SELECT * FROM photos WHERE shop_id = ?",
+        (shop_id,),
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def update_status(slug: str, status: str):
+    conn = get_connection()
+    conn.execute("UPDATE shops SET status = ? WHERE slug = ?", (status, slug))
+    conn.commit()
+    conn.close()
+
+
+def get_status(slug: str) -> Optional[str]:
+    conn = get_connection()
+    row = conn.execute("SELECT status FROM shops WHERE slug = ?", (slug,)).fetchone()
+    conn.close()
+    return row["status"] if row else None
+
+
+def get_facts(shop_id: int) -> Dict[str, Any]:
+    conn = get_connection()
+    rows = conn.execute("SELECT bin_type, data FROM bins WHERE shop_id = ?", (shop_id,)).fetchall()
+    conn.close()
+    facts = {}
+    for r in rows:
+        facts[r["bin_type"]] = json.loads(r["data"])
+    return facts
+

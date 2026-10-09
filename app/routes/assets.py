@@ -67,3 +67,63 @@ def view_sitemap():
 @router.get("/robots.txt", response_class=PlainTextResponse)
 def view_robots():
     return generate_robots_txt()
+
+
+# --- Frontend Templates & Legacy Compatibility Routes ---
+
+@router.get("/merchant/{slug}/card", response_class=HTMLResponse)
+def view_khoj_card(slug: str):
+    """Renders the visual Khoj Card template."""
+    import os
+    template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "card.html")
+    if os.path.exists(template_path):
+        with open(template_path, "r", encoding="utf-8") as f:
+            return f.read()
+    raise HTTPException(status_code=404, detail="Template not found")
+
+
+@router.get("/labs", response_class=HTMLResponse)
+def view_labs():
+    """Renders the KhojDoot Labs telemetry dashboard."""
+    import os
+    template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "labs.html")
+    if os.path.exists(template_path):
+        with open(template_path, "r", encoding="utf-8") as f:
+            return f.read()
+    raise HTTPException(status_code=404, detail="Template not found")
+
+
+@router.get("/upload", response_class=HTMLResponse)
+def view_upload_form():
+    """Renders the merchant shop upload form."""
+    import os
+    template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "upload.html")
+    if os.path.exists(template_path):
+        with open(template_path, "r", encoding="utf-8") as f:
+            return f.read()
+    raise HTTPException(status_code=404, detail="Template not found")
+
+
+@router.get("/b/{slug}.json")
+@router.get("/b/{slug}")
+def get_public_b_shop(slug: str):
+    """Compatibility route consumed by Khoj Card and external crawlers."""
+    from app.db.crud import get_photos, get_facts
+    shop = get_shop_by_slug(slug)
+    if not shop:
+        raise HTTPException(status_code=404, detail="Shop not found")
+
+    facts = get_facts(shop["id"])
+    photos = get_photos(shop["id"])
+
+    return {
+        "slug": shop["slug"],
+        "name": shop["name"],
+        "business_name": shop["name"],
+        "city": shop["city"],
+        "phone": shop["phone"],
+        "status": shop.get("status", "draft"),
+        "facts": facts,
+        "photos": [dict(p) for p in photos],
+    }
+

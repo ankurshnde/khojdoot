@@ -47,3 +47,27 @@ def approve_checkpoint1(slug: str, payload: ApprovalPayload):
         "message": "Checkpoint 1 approved. Website generation unlocked.",
         "next": f"/api/website/{slug}/generate",
     }
+
+
+@router.post("/{slug}/photos")
+async def upload_merchant_photo(slug: str, file: UploadFile = File(...)):
+    """Upload photo (rate card / menu) for merchant."""
+    import os, shutil
+    from datetime import datetime
+    from app.config import settings
+    from app.db.crud import save_photo
+
+    shop = get_shop_by_slug(slug)
+    if not shop:
+        raise HTTPException(status_code=404, detail="Shop not found")
+
+    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+    filename = f"{shop['id']}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}"
+    filepath = os.path.join(settings.UPLOAD_DIR, filename)
+
+    with open(filepath, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    save_photo(shop["id"], filename)
+    return {"status": "success", "filename": filename, "slug": slug}
+
