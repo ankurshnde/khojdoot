@@ -1,4 +1,3 @@
-```python
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -25,6 +24,7 @@ from app.db.crud import (
 
 from app.routes.projects import router as projects_router
 from app.routes.generate import router as generate_router
+from app.routes.auth import router as auth_router
 
 
 app = FastAPI(
@@ -47,6 +47,7 @@ init_db()
 # Register AI generation and project routes
 app.include_router(generate_router)
 app.include_router(projects_router)
+app.include_router(auth_router)
 
 
 class Shop(BaseModel):
@@ -359,4 +360,3 @@ def get_shop_website_specs(slug: str):
         return {"message": "Shop not found"}
 
     return get_website_specs(shop_data["id"])
-```
