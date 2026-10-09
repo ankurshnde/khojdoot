@@ -65,7 +65,21 @@ def generate_website(spec: Dict[str, Any], infobin: Dict[str, Any]) -> str:
             operating_hours=hours,
             offerings=offerings,
         )
-        return render_design_preview(facts, ds)
+        preview_body = render_design_preview(facts, ds)
+        if not preview_body.strip().startswith("<!DOCTYPE html>"):
+            return f"""<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{name}</title>
+</head>
+<body style="margin:0;padding:0;">
+    {preview_body}
+</body>
+</html>"""
+        return preview_body
+
 
     # Default fallback semantic HTML rendering
     primary_color = theme.get("primary_color", "#E05A47")
