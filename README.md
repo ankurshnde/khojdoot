@@ -19,11 +19,14 @@ khojdoot/
 │
 ├── app/
 │   ├── main.py
+│   ├── auth.py
 │   │
 │   ├── routes/
+│   │   ├── auth.py
 │   │   ├── merchants.py
 │   │   ├── website.py
 │   │   └── assets.py
+
 │   │
 │   ├── harness/
 │   │   ├── workflow.py

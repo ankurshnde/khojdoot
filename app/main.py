@@ -13,6 +13,7 @@ from app.db.database import init_db
 from app.routes.merchants import router as merchants_router
 from app.routes.website import router as website_router
 from app.routes.assets import router as assets_router
+from app.routes.auth import router as auth_router
 
 # Ensure runtime directories exist
 os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
@@ -42,9 +43,11 @@ if os.path.exists(settings.UPLOAD_DIR):
     app.mount("/static/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 # Include Routers
+app.include_router(auth_router, prefix="/api/auth", tags=["Authentication & OTP"])
 app.include_router(merchants_router, prefix="/api/merchants", tags=["Merchants & Chat"])
 app.include_router(website_router, prefix="/api/website", tags=["Website Engine & Editing"])
 app.include_router(assets_router, tags=["Publishing & Public Assets"])
+
 
 
 @app.get("/health", tags=["Health"])
