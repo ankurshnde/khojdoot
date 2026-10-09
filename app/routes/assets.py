@@ -54,6 +54,16 @@ def view_llms_txt(slug: str):
     return generate_llms_txt(infobin)
 
 
+@router.get("/merchant/{slug}/robots.txt", response_class=PlainTextResponse)
+def view_merchant_robots(slug: str):
+    return generate_robots_txt(base_url=f"http://localhost:8000/merchant/{slug}")
+
+
+@router.get("/merchant/{slug}/sitemap.xml", response_class=Response)
+def view_merchant_sitemap(slug: str):
+    return Response(content=generate_sitemap(slug=slug), media_type="application/xml")
+
+
 @router.get("/.well-known/agent-card.json", response_class=JSONResponse)
 def view_agent_card():
     return generate_agent_card({"name": "KhojDoot Network"})
