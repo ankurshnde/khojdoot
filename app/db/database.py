@@ -25,6 +25,8 @@ def init_db():
     cursor = conn.cursor()
 
     cursor.executescript("""
+    PRAGMA journal_mode=WAL;
+
     CREATE TABLE IF NOT EXISTS shops (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         sme_id TEXT,
@@ -81,6 +83,14 @@ def init_db():
         status TEXT DEFAULT 'generated',
         FOREIGN KEY (shop_id) REFERENCES shops(id)
     );
+
+    -- Performance Indices (Sub-millisecond retrieval)
+    CREATE INDEX IF NOT EXISTS idx_shops_slug ON shops(slug);
+    CREATE INDEX IF NOT EXISTS idx_shops_phone ON shops(phone);
+    CREATE INDEX IF NOT EXISTS idx_bins_shop_type ON bins(shop_id, bin_type);
+    CREATE INDEX IF NOT EXISTS idx_photos_shop ON photos(shop_id);
+    CREATE INDEX IF NOT EXISTS idx_provenance_shop ON provenance(shop_id);
+    CREATE INDEX IF NOT EXISTS idx_specs_shop_version ON website_specs(shop_id, version);
     """)
 
     conn.commit()

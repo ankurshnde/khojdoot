@@ -39,6 +39,14 @@ def get_shop_by_slug(slug: str) -> Optional[Dict[str, Any]]:
     return dict(row) if row else None
 
 
+def get_shop_by_phone(phone: str) -> Optional[Dict[str, Any]]:
+    conn = get_connection()
+    row = conn.execute("SELECT * FROM shops WHERE phone = ?", (phone,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+
 def save_bin(shop_id: int, bin_type: str, data: Dict[str, Any]):
     conn = get_connection()
     conn.execute(
@@ -110,14 +118,19 @@ def save_photo(shop_id: int, filename: str, source: str = "upload"):
     conn.close()
 
 
-def get_photos(shop_id: int) -> List[Dict[str, Any]]:
+def get_photos(shop_id: int, base_path: Optional[str] = None) -> List[Dict[str, Any]]:
     conn = get_connection()
     rows = conn.execute(
         "SELECT * FROM photos WHERE shop_id = ?",
         (shop_id,),
     ).fetchall()
     conn.close()
-    return [dict(r) for r in rows]
+    photos = [dict(r) for r in rows]
+    if base_path:
+        import os
+        for p in photos:
+            p["url"] = os.path.join(base_path, p["filename"]).replace("\\", "/")
+    return photos
 
 
 def update_status(slug: str, status: str):
@@ -159,6 +172,12 @@ def get_consent(shop_id: int) -> List[Dict[str, Any]]:
     rows = conn.execute("SELECT * FROM consent_records WHERE shop_id = ?", (shop_id,)).fetchall()
     conn.close()
     return [dict(r) for r in rows]
+
+
+def get_consent_history(shop_id: int) -> List[Dict[str, Any]]:
+    """Fetch full history of consent records for legal compliance."""
+    return get_consent(shop_id)
+
 
 
 def get_website_specs(shop_id: int) -> List[Dict[str, Any]]:
