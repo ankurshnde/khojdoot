@@ -92,6 +92,17 @@ def view_khoj_card(slug: str):
     raise HTTPException(status_code=404, detail="Template not found")
 
 
+@router.get("/studio", response_class=HTMLResponse)
+def view_studio():
+    """Renders the unified KhojDoot Split-Screen Builder Studio."""
+    import os
+    template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "studio.html")
+    if os.path.exists(template_path):
+        with open(template_path, "r", encoding="utf-8") as f:
+            return f.read()
+    raise HTTPException(status_code=404, detail="Studio template not found")
+
+
 @router.get("/labs", response_class=HTMLResponse)
 def view_labs():
     """Renders the KhojDoot Labs telemetry dashboard."""

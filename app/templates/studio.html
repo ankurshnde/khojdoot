@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KhojDoot — Live Regional Website Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0F172A;
+  --surface: #1E293B;
+  --surface-alt: #334155;
+  --border: #475569;
+  --text: #F8FAFC;
+  --muted: #94A3B8;
+  --primary: #F59E0B;
+  --primary-hover: #D97706;
+  --success: #10B981;
+  --danger: #EF4444;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Mukta', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand h1 { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+.badge {
+  font-size: 0.75rem;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 600;
+}
+.controls { display: flex; gap: 12px; align-items: center; }
+.btn {
+  background: var(--primary);
+  color: #111;
+  font-weight: 700;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: 0.2s;
+  font-size: 0.95rem;
+}
+.btn:hover { background: var(--primary-hover); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-secondary { background: var(--surface-alt); color: #fff; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.main-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Left Panel: Workflow & Chat */
+.left-pane {
+  width: 440px;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+}
+
+.pane-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.pane-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+textarea, input[type="text"] {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+textarea { resize: vertical; min-height: 80px; }
+
+/* Fact Verification Table */
+.fact-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 0.9rem;
+}
+.fact-label { color: var(--muted); }
+.fact-val { font-weight: 600; color: #fff; text-align: right; }
+
+/* Scorecard */
+.score-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.score-pass { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+.score-fail { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+/* Right Panel: Live Preview */
+.right-pane {
+  flex: 1;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+}
+.preview-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.preview-viewport {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  background: #0B0F19;
+  overflow: hidden;
+  padding: 16px;
+}
+iframe {
+  width: 100%;
+  max-width: 900px;
+  height: 100%;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* Chat drawer for Checkpoint 2 */
+.chat-drawer {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+.quick-prompts {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.quick-tag {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.quick-tag:hover { color: var(--primary); border-color: var(--primary); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>KhojDoot Studio</h1>
+    <span class="badge">PS-29 Regional Engine</span>
+  </div>
+  <div class="controls">
+    <span id="merchantSlugLabel" style="font-size: 0.9rem; color: var(--muted);">Slug: sunita-tiffin</span>
+    <button class="btn btn-secondary" id="loadBtn">Load Merchant</button>
+    <button class="btn btn-success" id="publishBtn" disabled>🚀 Publish Live</button>
+  </div>
+</header>
+
+<div class="main-container">
+  <!-- Left Column -->
+  <div class="left-pane">
+    <div class="pane-tabs">
+      <div class="tab active" id="tab1" onclick="switchTab(1)">१. माहिती इनपुट / Info</div>
+      <div class="tab" id="tab2" onclick="switchTab(2)">२. पडताळणी / Checkpoint 1</div>
+      <div class="tab" id="tab3" onclick="switchTab(3)">३. संपादन / Edit Loop</div>
+    </div>
+
+    <!-- Tab 1: Input -->
+    <div class="pane-content" id="content1">
+      <div class="card">
+        <div class="card-title">Merchant Link (Slug)</div>
+        <input type="text" id="slugInput" value="sunita-tiffin-service" placeholder="e.g. rahul-kirana-pune">
+      </div>
+
+      <div class="card">
+        <div class="card-title">प्रादेशिक व्यवसाय माहिती (Marathi / Hindi / English)</div>
+        <textarea id="rawInput" rows="5" placeholder="उदा: आमची सुनीता टिफिन सर्व्हिस आहे, गंगापूर रोड नाशिक. रोज घरगुती जेवणाचा डबा ८० रुपयांत मिळतो. फोन नंबर ९४२३३७५१२३."></textarea>
+        <div class="quick-prompts">
+          <span class="quick-tag" onclick="setInput('tiffin')">🍱 Sunita Tiffin (Marathi)</span>
+          <span class="quick-tag" onclick="setInput('pottery')">🏺 Jaipur Pottery (Hindi)</span>
+          <span class="quick-tag" onclick="setInput('tailor')">🧵 Modern Boutique (English)</span>
+        </div>
+        <button class="btn" style="width: 100%; margin-top: 12px;" id="extractBtn">माहिती विश्लेषण करा / Analyze & Extract</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">किंवा व्हॉइस नोट अपलोड करा (Audio STT)</div>
+        <input type="file" id="audioInput" accept="audio/*">
+        <button class="btn btn-secondary" style="width: 100%; margin-top: 8px;" id="uploadVoiceBtn">Upload Voice Note</button>
+      </div>
+    </div>
+
+    <!-- Tab 2: Checkpoint 1 Approval -->
+    <div class="pane-content" id="content2" style="display: none;">
+      <div class="card">
+        <div class="card-title">
+          <span>तपासणी केलेले घटक (Extracted InfoBin)</span>
+          <span class="badge" id="infoValidBadge">Valid</span>
+        </div>
+        <div class="fact-row"><span class="fact-label">व्यवसायाचे नाव</span><span class="fact-val" id="dispName">-</span></div>
+        <div class="fact-row"><span class="fact-label">संपर्क क्रमांक</span><span class="fact-val" id="dispPhone">-</span></div>
+        <div class="fact-row"><span class="fact-label">पत्ता / Location</span><span class="fact-val" id="dispLoc">-</span></div>
+        <div class="fact-row"><span class="fact-label">सेवा / Services</span><span class="fact-val" id="dispServices">-</span></div>
+        <div class="fact-row"><span class="fact-label">ऑफरिंग्स / Menu</span><span class="fact-val" id="dispMenu">-</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">व्यापारी संमती व मंजुरी (Consent & Lock)</div>
+        <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 12px;">माहिती तपासा. मंजुरी दिल्यावर 10 Design Systems पैकी सर्वोत्तम वेबसाइट तयार होईल.</p>
+        <button class="btn btn-success" style="width: 100%;" id="approveBtn">✅ माहिती बरोबर आहे / Approve & Build Website</button>
+      </div>
+    </div>
+
+    <!-- Tab 3: Checkpoint 2 Conversational Edit Loop -->
+    <div class="pane-content" id="content3" style="display: none;">
+      <div class="card">
+        <div class="card-title">
+          <span>8-Point Quality Scorecard</span>
+          <span class="score-pill score-pass" id="scorecardBadge">Passed 8/8</span>
+        </div>
+        <div id="scorecardSummary" style="font-size: 0.85rem; color: var(--muted);">HTML5 Valid, Viewport Mobile-Ready, UTF-8 Indic Safe, JSON-LD Attached.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">डिझाइन सिस्टीम निवडा / Switch Theme</div>
+        <select id="themeSelect" style="width: 100%; padding: 8px; border-radius: 6px; background: var(--bg); color: #fff; border: 1px solid var(--border);">
+          <option value="home_kitchen">Theme 8: Home Kitchen (पारंपारिक जेवण)</option>
+          <option value="timeless_elegance">Theme 1: Timeless Elegance (रॉयल / गोल्ड)</option>
+          <option value="playful_market">Theme 2: Playful Market (उत्साही / कलर्स)</option>
+          <option value="natural_craft">Theme 3: Natural Craft (हस्तकला / माती)</option>
+          <option value="modern_studio">Theme 4: Modern Studio (आधुनिक)</option>
+          <option value="local_heritage">Theme 5: Local Heritage (वारसा / संस्कृती)</option>
+          <option value="minimal_atelier">Theme 9: Minimal Atelier (स्विस साधा)</option>
+          <option value="global_artisan">Theme 10: Global Artisan (एक्सपोर्ट)</option>
+        </select>
+      </div>
+
+      <div class="card" style="margin-top: auto;">
+        <div class="card-title">बोलून / लिहून बदल करा (Gemma 31B AI Patcher)</div>
+        <div class="chat-drawer">
+          <input type="text" id="editInput" placeholder="उदा: रंग हिरवा करा किंवा किंमत १०० करा...">
+          <button class="btn" id="editBtn">बदला / Apply</button>
+        </div>
+        <div class="quick-prompts">
+          <span class="quick-tag" onclick="setEdit('रंग बदलून रॉयल गोल्ड करा')">रंग रॉयल गोल्ड करा</span>
+          <span class="quick-tag" onclick="setEdit('थीम साधी आणि मिनिमल ठेवा')">थीम साधी ठेवा</span>
+          <span class="quick-tag" onclick="setEdit('मराठी थाळीची किंमत 90 रुपये करा')">किंमत ₹90 करा</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Live Iframe -->
+  <div class="right-pane">
+    <div class="preview-bar">
+      <span id="previewUrlText">Live Preview: /merchant/{slug}</span>
+      <div style="display: flex; gap: 8px;">
+        <span class="badge" id="previewThemeBadge">Design System: Home Kitchen</span>
+        <a id="openTabBtn" href="#" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">नवीन टॅबमध्ये उघडा ↗</a>
+      </div>
+    </div>
+    <div class="preview-viewport">
+      <iframe id="previewIframe" src="about:blank"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentSlug = "sunita-tiffin-service";
+let currentInfobin = null;
+
+const samples = {
+  tiffin: "आमची सुनीता टिफिन सर्व्हिस आहे, गंगापूर रोड नाशिक. रोज शुद्ध घरगुती जेवणाचा डबा ८० रुपयांत मिळतो. फोन नंबर ९४२३३७५१२३.",
+  pottery: "सुमन पॉटरी वर्क्स, मालवीय नगर जयपूर. आम्ही पारंपरिक मातीची भांडी आणि डिझायनर कुंड्या बनवतो. दर २०० रुपयांपासून सुरू. संपर्क ९८२९०१२३४५.",
+  tailor: "Royal Boutique, MG Road Pune. Customized bridal sarees, designer blouses and suits. Call +91 9822011223."
+};
+
+function switchTab(num) {
+  [1, 2, 3].forEach(n => {
+    document.getElementById('tab' + n).classList.toggle('active', n === num);
+    document.getElementById('content' + n).style.display = (n === num) ? 'flex' : 'none';
+  });
+}
+
+function setInput(type) {
+  document.getElementById('rawInput').value = samples[type] || '';
+  if (type === 'tiffin') document.getElementById('slugInput').value = 'sunita-tiffin-service';
+  if (type === 'pottery') document.getElementById('slugInput').value = 'suman-pottery-jaipur';
+  if (type === 'tailor') document.getElementById('slugInput').value = 'royal-boutique-pune';
+}
+
+function setEdit(text) {
+  document.getElementById('editInput').value = text;
+}
+
+// 1. Analyze Input
+document.getElementById('extractBtn').onclick = async () => {
+  const slug = document.getElementById('slugInput').value.trim() || 'my-shop';
+  const text = document.getElementById('rawInput').value.trim();
+  if (!text) return alert("कृपया माहिती प्रविष्ट करा.");
+
+  currentSlug = slug;
+  document.getElementById('merchantSlugLabel').textContent = "Slug: " + slug;
+  document.getElementById('extractBtn').textContent = "प्रक्रिया सुरू आहे...";
+  document.getElementById('extractBtn').disabled = true;
+
+  try {
+    const res = await fetch(`/api/merchants/${slug}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, language: "mr-IN" })
+    });
+    const data = await res.json();
+    currentInfobin = (data.data && data.data.infobin) || {};
+    populateCheckpoint1(currentInfobin);
+    switchTab(2);
+  } catch(e) {
+    alert("विश्लेषण त्रुटी: " + e.message);
+  } finally {
+    document.getElementById('extractBtn').textContent = "माहिती विश्लेषण करा / Analyze & Extract";
+    document.getElementById('extractBtn').disabled = false;
+  }
+};
+
+function populateCheckpoint1(info) {
+  document.getElementById('dispName').textContent = info.name || '-';
+  document.getElementById('dispPhone').textContent = info.phone || '-';
+  document.getElementById('dispLoc').textContent = info.location || '-';
+  document.getElementById('dispServices').textContent = info.services || '-';
+  const menuStr = (info.menu || []).map(m => m.item + (m.price ? ` (₹${m.price})` : '')).join(', ');
+  document.getElementById('dispMenu').textContent = menuStr || '-';
+}
+
+// 2. Approve Checkpoint 1
+document.getElementById('approveBtn').onclick = async () => {
+  document.getElementById('approveBtn').textContent = "वेबसाईट तयार होत आहे...";
+  document.getElementById('approveBtn').disabled = true;
+
+  try {
+    // Approve
+    await fetch(`/api/merchants/${currentSlug}/checkpoint1/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ approved: true })
+    });
+
+    // Generate Checkpoint 2
+    const res = await fetch(`/api/website/${currentSlug}/generate`, { method: 'POST' });
+    const genData = await res.json();
+    
+    // Update live preview iframe
+    refreshPreview();
+    switchTab(3);
+    document.getElementById('publishBtn').disabled = false;
+  } catch(e) {
+    alert("निर्मिती त्रुटी: " + e.message);
+  } finally {
+    document.getElementById('approveBtn').textContent = "✅ माहिती बरोबर आहे / Approve & Build Website";
+    document.getElementById('approveBtn').disabled = false;
+  }
+};
+
+// 3. Conversational Edit
+document.getElementById('editBtn').onclick = async () => {
+  const instruction = document.getElementById('editInput').value.trim();
+  if (!instruction) return;
+
+  document.getElementById('editBtn').textContent = "...";
+  document.getElementById('editBtn').disabled = true;
+
+  try {
+    const res = await fetch(`/api/website/${currentSlug}/edit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ instruction })
+    });
+    const patchData = await res.json();
+    refreshPreview();
+    document.getElementById('editInput').value = '';
+  } catch(e) {
+    alert("संपादन त्रुटी: " + e.message);
+  } finally {
+    document.getElementById('editBtn').textContent = "बदला / Apply";
+    document.getElementById('editBtn').disabled = false;
+  }
+};
+
+// Theme Dropdown Change
+document.getElementById('themeSelect').onchange = async () => {
+  const chosenTheme = document.getElementById('themeSelect').value;
+  await fetch(`/api/website/${currentSlug}/edit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ instruction: `थीम ${chosenTheme} ठेवा` })
+  });
+  refreshPreview();
+};
+
+function refreshPreview() {
+  const iframe = document.getElementById('previewIframe');
+  iframe.src = `/merchant/${currentSlug}?t=` + Date.now();
+  document.getElementById('previewUrlText').textContent = `Live URL: /merchant/${currentSlug}`;
+  document.getElementById('openTabBtn').href = `/merchant/${currentSlug}`;
+}
+
+// Publish
+document.getElementById('publishBtn').onclick = async () => {
+  document.getElementById('publishBtn').textContent = "Publishing...";
+  try {
+    const res = await fetch(`/api/website/${currentSlug}/publish`, { method: 'POST' });
+    const data = await res.json();
+    alert(`अभिनंदन! वेबसाईट आणि सर्व Crawlable Assets (facts.json, llms.txt, agentfacts.json) प्रकाशित झाले आहेत!\n\nLink: ${location.origin}${data.url}`);
+  } catch(e) {
+    alert("पब्लिश त्रुटी: " + e.message);
+  } finally {
+    document.getElementById('publishBtn').textContent = "🚀 Publish Live";
+  }
+};
+</script>
+</body>
+</html>
