@@ -6,7 +6,7 @@ Endpoints: Send OTP, Verify OTP, Auth Status.
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, Dict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import random
 
 router = APIRouter()
@@ -54,7 +54,7 @@ def send_otp(request: SendOTPRequest):
 
     # Generate a 6-digit OTP (or use DEMO_MASTER_OTP)
     generated_otp = str(random.randint(100000, 999999))
-    expires_at = datetime.utcnow() + timedelta(minutes=10)
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
 
     OTP_STORE[phone] = {
         "otp": generated_otp,
@@ -86,7 +86,7 @@ def verify_otp(request: VerifyOTPRequest):
             status="authenticated",
             message="OTP verified successfully (Master Demo OTP).",
             user_id=phone,
-            access_token=f"khojdoot_token_{phone}_{int(datetime.utcnow().timestamp())}",
+            access_token=f"khojdoot_token_{phone}_{int(datetime.now(timezone.utc).timestamp())}",
         )
 
     # Check generated OTP
@@ -94,7 +94,7 @@ def verify_otp(request: VerifyOTPRequest):
     if not record:
         raise HTTPException(status_code=400, detail="No OTP requested for this mobile number. Please send OTP first.")
 
-    if datetime.utcnow() > record["expires_at"]:
+    if datetime.now(timezone.utc) > record["expires_at"]:
         OTP_STORE.pop(phone, None)
         raise HTTPException(status_code=400, detail="OTP has expired. Please request a new one.")
 
@@ -107,7 +107,7 @@ def verify_otp(request: VerifyOTPRequest):
         status="authenticated",
         message="OTP verified successfully.",
         user_id=phone,
-        access_token=f"khojdoot_token_{phone}_{int(datetime.utcnow().timestamp())}",
+        access_token=f"khojdoot_token_{phone}_{int(datetime.now(timezone.utc).timestamp())}",
     )
 
 
@@ -115,7 +115,7 @@ def verify_otp(request: VerifyOTPRequest):
 def check_auth_status(mobile: str):
     """Checks whether an active OTP request exists for this user ID (mobile)."""
     phone = normalize_mobile(mobile)
-    has_pending = phone in OTP_STORE and datetime.utcnow() <= OTP_STORE[phone]["expires_at"]
+    has_pending = phone in OTP_STORE and datetime.now(timezone.utc) <= OTP_STORE[phone]["expires_at"]
     return {
         "user_id": phone,
         "has_pending_otp": has_pending,
