@@ -25,11 +25,22 @@ class ApprovalPayload(BaseModel):
 def chat_with_merchant(slug: str, chat: ChatInput):
     """Processes Web Chat requirement input."""
     result = execute_workflow({"slug": slug, "raw_input": chat.message, "phase": "checkpoint1"})
+
+    # Persist extracted facts to database
+    infobin_data = result.get("infobin", {})
+    name = infobin_data.get("name", slug.replace("-", " ").title())
+    phone = infobin_data.get("phone", "")
+    city = infobin_data.get("location", "")
+
+    shop_id = create_or_update_shop(sme_id=f"sme_{slug}", slug=slug, name=name, phone=phone, city=city)
+    save_bin(shop_id, "infobin", infobin_data)
+
     return {
         "status": "success",
         "checkpoint": "CHECKPOINT_1_AWAITING_APPROVAL",
         "data": result,
     }
+
 
 
 @router.post("/{slug}/checkpoint1/approve")

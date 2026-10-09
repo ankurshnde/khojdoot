@@ -15,6 +15,7 @@ def spec_generation_node(state: AgentState) -> AgentState:
         theme=ThemeSpec(style="traditional"),
         active_sections=sections,
     )
-    state.website_spec = spec.dict()
+    state.website_spec = spec.model_dump()
     state.active_step = "generate_code"
     return state
+

@@ -3,10 +3,12 @@ Application Configuration.
 Owner: Abhishek / System Architecture
 """
 import os
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="allow")
+
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     DEBUG: bool = True
@@ -25,9 +27,6 @@ class Settings(BaseSettings):
     CODING_MODEL_PROVIDER: str = "gemini"
     CODING_MODEL_NAME: str = "gemini-2.5-flash"
 
-    class Config:
-        env_file = ".env"
-        extra = "allow"
 
 
 settings = Settings()

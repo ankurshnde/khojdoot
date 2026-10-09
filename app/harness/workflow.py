@@ -22,4 +22,5 @@ def execute_workflow(request_context: Dict[str, Any]) -> Dict[str, Any]:
     elif phase == "checkpoint2":
         state = graph.run_checkpoint2(state)
 
-    return state.dict()
+    return state.model_dump()
+
