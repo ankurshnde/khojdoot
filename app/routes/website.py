@@ -66,6 +66,9 @@ def edit_merchant_website(slug: str, edit: EditInstruction):
         }
         html = generate_website(patched_spec, infobin)
         scorecard = validate_website_html(html)
+
+        # Persist updated spec version
+        save_website_spec(shop["id"], version=patched_spec.get("version", 2), spec_data=patched_spec)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Website patch/revalidation failed: {str(e)}")
 
