@@ -1,11 +1,27 @@
-"""InfoBin Validation Node."""
+"""
+InfoBin Validation Node.
+Performs deterministic validation on extracted business information.
+"""
+from typing import Dict, Any
 from app.schemas.infobin import InfoBin
 from app.validation.business import validate_infobin
 from app.harness.state import AgentState
 
-def infobin_validation_node(state: AgentState) -> AgentState:
-    if state.infobin:
-        result = validate_infobin(InfoBin(**state.infobin))
-        state.infobin_valid = result["valid"]
-    state.active_step = "await_approval"
-    return state
+
+def infobin_validation_node(state: AgentState) -> Dict[str, Any]:
+    infobin_data = state.get("infobin")
+    valid = False
+    validation_report = {}
+
+    if infobin_data:
+        validation_report = validate_infobin(InfoBin(**infobin_data))
+        valid = validation_report.get("valid", False)
+
+    history = list(state.get("history") or [])
+    history.append({"node": "infobin_validation", "valid": valid, "score": validation_report.get("score", 0.0)})
+
+    return {
+        "infobin_valid": valid,
+        "active_step": "await_approval" if valid else "need_clarification",
+        "history": history,
+    }

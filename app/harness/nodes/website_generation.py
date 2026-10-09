@@ -1,10 +1,22 @@
-"""Website Generation Node."""
+"""
+Website Generation Node.
+Synthesizes bounded components into full HTML according to WebsiteSpec.
+"""
+from typing import Dict, Any
 from app.website.generator import generate_website
 from app.harness.state import AgentState
 
-def website_generation_node(state: AgentState) -> AgentState:
-    if state.website_spec and state.infobin:
-        html = generate_website(state.website_spec, state.infobin)
-        state.generated_html = html
-    state.active_step = "validate_website"
-    return state
+
+def website_generation_node(state: AgentState) -> Dict[str, Any]:
+    spec = state.get("website_spec") or {}
+    infobin = state.get("infobin") or {}
+    html = generate_website(spec, infobin)
+
+    history = list(state.get("history") or [])
+    history.append({"node": "website_generation", "bytes": len(html)})
+
+    return {
+        "generated_html": html,
+        "active_step": "validate_website",
+        "history": history,
+    }

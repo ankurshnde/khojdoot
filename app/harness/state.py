@@ -1,21 +1,26 @@
 """
-Agent Harness State Definition.
+Agent Harness State Definition (LangGraph TypedDict State).
 Owner: Ankur (Architecture Lead)
+Contract: TRD v2.0 Section 6
 """
-from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field
+from typing import TypedDict, Optional, Dict, Any, List
 
 
-class AgentState(BaseModel):
+class AgentState(TypedDict, total=False):
+    """Canonical LangGraph State across the KhojDoot Agent Harness."""
     merchant_slug: str
-    active_step: str = "understand_requirement"
-    raw_input: Optional[str] = None
-    input_type: str = "text"  # text, voice, image
-    infobin: Optional[Dict[str, Any]] = None
-    infobin_valid: bool = False
-    checkpoint1_approved: bool = False
-    website_spec: Optional[Dict[str, Any]] = None
-    generated_html: Optional[str] = None
-    validation_scorecard: Optional[Dict[str, Any]] = None
-    checkpoint2_approved: bool = False
-    history: List[Dict[str, Any]] = Field(default_factory=list)
+    active_step: str
+    raw_input: Optional[str]
+    input_type: str  # text, voice, image
+    intent: Optional[str]  # NEW_BUSINESS_INFO, EDIT_REQUEST, CLARIFICATION
+    infobin: Optional[Dict[str, Any]]
+    infobin_valid: bool
+    checkpoint1_approved: bool
+    edit_instruction: Optional[str]
+    website_spec: Optional[Dict[str, Any]]
+    generated_html: Optional[str]
+    validation_scorecard: Optional[Dict[str, Any]]
+    checkpoint2_approved: bool
+    published_url: Optional[str]
+    error: Optional[str]
+    history: List[Dict[str, Any]]
