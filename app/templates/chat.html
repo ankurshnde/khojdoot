@@ -507,23 +507,61 @@
         }, 600);
       }
 
-      // Voice recognition
+      // Voice Recording & Ingestion Engine (MediaRecorder + Web Speech API + Sarvam AI)
+      let mediaRecorder = null;
+      let audioChunks = [];
+      let micStream = null;
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-      function startVoice() {
+      async function startVoice() {
+        if (isRecording) {
+          stopVoice();
+          return;
+        }
+
         isRecording = true;
         micBtn.classList.add('recording');
         voiceAlert.style.display = 'flex';
-        voiceLiveTranscript.textContent = KhojLanguage.t('voiceMicActive');
+        voiceLiveTranscript.textContent = "माइक चालू आहे... तुमच्या व्यवसायाबद्दल बोला (Recording...)";
 
         const curLang = KhojLanguage.getLanguage();
-        const langCode = curLang === 'mr' ? 'mr-IN' : curLang === 'hi' ? 'hi-IN' : curLang === 'te' ? 'te-IN' : 'en-IN';
+        const langCode = curLang === 'mr' ? 'mr-IN' : (curLang === 'hi' ? 'hi-IN' : (curLang === 'te' ? 'te-IN' : 'en-IN'));
 
+        audioChunks = [];
+
+        // 1. First attempt: Real microphone recording using MediaRecorder (WAV/WebM)
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          try {
+            micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : (MediaRecorder.isTypeSupported('audio/ogg') ? 'audio/ogg' : '');
+            mediaRecorder = mimeType ? new MediaRecorder(micStream, { mimeType }) : new MediaRecorder(micStream);
+
+            mediaRecorder.ondataavailable = (event) => {
+              if (event.data && event.data.size > 0) {
+                audioChunks.push(event.data);
+              }
+            };
+
+            mediaRecorder.onstop = async () => {
+              if (audioChunks.length > 0) {
+                const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/wav' });
+                voiceLiveTranscript.textContent = "आवाज प्रक्रिया करत आहे... (Transcribing via Sarvam Saaras AI...)";
+                await sendVoiceToBackend(audioBlob, langCode);
+              }
+            };
+
+            mediaRecorder.start();
+          } catch (micErr) {
+            console.warn("MediaRecorder permission/access error:", micErr);
+          }
+        }
+
+        // 2. Parallel: Web Speech API for real-time live typing on supported browsers
         if (SpeechRecognition) {
           try {
             speechRecognition = new SpeechRecognition();
             speechRecognition.lang = langCode;
-            speechRecognition.continuous = false;
+            speechRecognition.continuous = true;
             speechRecognition.interimResults = true;
 
             speechRecognition.onresult = (e) => {
@@ -534,36 +572,60 @@
                 checkSendState();
               }
             };
-            speechRecognition.onerror = () => simulateVoice();
-            speechRecognition.onend = stopVoice;
+
+            speechRecognition.onerror = (err) => {
+              console.warn("SpeechRecognition error:", err.error);
+            };
+
             speechRecognition.start();
-          } catch(e) {
-            simulateVoice();
+          } catch(srErr) {
+            console.warn("SpeechRecognition start error:", srErr);
           }
-        } else {
-          simulateVoice();
         }
       }
 
-      function simulateVoice() {
-        setTimeout(() => {
-          if (!isRecording) return;
-          const isEn = KhojLanguage.getLanguage() === 'en';
-          const simText = isEn 
-            ? "I run Sai Tea Centre in Deccan Pune serving ginger masala tea, bun maska, and snacks."
-            : "माझे पुण्यात डेक्कन येथे साई चहा सेंटर आहे. चहा, मस्का पाव आणि स्नॅक्स मिळतात.";
-          promptInput.value = simText;
-          voiceLiveTranscript.textContent = simText;
-          checkSendState();
-          stopVoice();
-          KhojApp.showToast(KhojLanguage.t('toastVoiceTranscribed'), "info");
-        }, 1800);
+      async function sendVoiceToBackend(blob, langCode) {
+        const slug = (KhojBusiness.getCurrentBusiness() && KhojBusiness.getCurrentBusiness().slug) || 'temp-merchant';
+        const formData = new FormData();
+        const ext = blob.type.includes('ogg') ? '.ogg' : (blob.type.includes('webm') ? '.webm' : '.wav');
+        formData.append('file', blob, `voice_note${ext}`);
+        formData.append('language', langCode);
+
+        try {
+          const resp = await fetch(`/api/merchants/${slug}/voice`, {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (resp.ok) {
+            const data = await resp.json();
+            const transcript = data.transcript || "";
+            if (transcript) {
+              promptInput.value = transcript;
+              voiceLiveTranscript.textContent = transcript;
+              checkSendState();
+              KhojApp.showToast("व्हॉइस नोट यशस्वीरीत्या रेकॉर्ड झाली! / Transcribed!", "success");
+            }
+          } else {
+            console.warn("Voice endpoint responded with error, keeping local input if any.");
+          }
+        } catch (err) {
+          console.warn("Backend voice upload error:", err);
+        }
       }
 
       function stopVoice() {
         isRecording = false;
         micBtn.classList.remove('recording');
         voiceAlert.style.display = 'none';
+
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          try { mediaRecorder.stop(); } catch(e) {}
+        }
+        if (micStream) {
+          micStream.getTracks().forEach(track => track.stop());
+          micStream = null;
+        }
         if (speechRecognition) {
           try { speechRecognition.stop(); } catch(e) {}
           speechRecognition = null;

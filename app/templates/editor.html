@@ -384,23 +384,75 @@
       chkGallery.addEventListener('change', syncCheckboxes);
       chkContact.addEventListener('change', syncCheckboxes);
 
-      // Voice recognition engine
+      // Real Voice Recording & Ingestion Engine (MediaRecorder + Web Speech API)
+      let mediaRecorder = null;
+      let audioChunks = [];
+      let micStream = null;
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-      function startVoice() {
+      async function startVoice() {
+        if (isRecording) {
+          stopVoice();
+          return;
+        }
+
         isRecording = true;
         editVoiceMicBtn.classList.add('recording');
-        editVoiceStatus.textContent = KhojLanguage.t('voiceListening');
+        editVoiceStatus.textContent = "माइक चालू आहे... बदल सांगा (Recording...)";
         editVoiceStatus.style.color = "#dc2626";
 
         const curLang = KhojLanguage.getLanguage();
-        const langCode = curLang === 'mr' ? 'mr-IN' : curLang === 'hi' ? 'hi-IN' : curLang === 'te' ? 'te-IN' : 'en-IN';
+        const langCode = curLang === 'mr' ? 'mr-IN' : (curLang === 'hi' ? 'hi-IN' : (curLang === 'te' ? 'te-IN' : 'en-IN'));
 
+        audioChunks = [];
+
+        // Real microphone capture via MediaRecorder
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          try {
+            micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : '';
+            mediaRecorder = mimeType ? new MediaRecorder(micStream, { mimeType }) : new MediaRecorder(micStream);
+
+            mediaRecorder.ondataavailable = (e) => {
+              if (e.data && e.data.size > 0) audioChunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+              if (audioChunks.length > 0) {
+                const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/wav' });
+                editVoiceStatus.textContent = "प्रक्रिया सुरू आहे... (Transcribing...)";
+                const formData = new FormData();
+                formData.append('file', blob, 'edit_note.webm');
+                formData.append('language', langCode);
+
+                try {
+                  const slug = (KhojBusiness.getCurrentBusiness() && KhojBusiness.getCurrentBusiness().slug) || 'temp-merchant';
+                  const resp = await fetch(`/api/merchants/${slug}/voice`, { method: 'POST', body: formData });
+                  if (resp.ok) {
+                    const data = await resp.json();
+                    if (data.transcript) {
+                      editInstructionInput.value = data.transcript;
+                      applyEdit(data.transcript);
+                    }
+                  }
+                } catch (err) {
+                  console.warn("Backend voice upload error:", err);
+                }
+              }
+            };
+
+            mediaRecorder.start();
+          } catch (micErr) {
+            console.warn("MediaRecorder mic access error:", micErr);
+          }
+        }
+
+        // Parallel Web Speech API for real-time live typing
         if (SpeechRecognition) {
           try {
             speechRecognition = new SpeechRecognition();
             speechRecognition.lang = langCode;
-            speechRecognition.continuous = false;
+            speechRecognition.continuous = true;
             speechRecognition.interimResults = true;
 
             speechRecognition.onresult = (e) => {
@@ -410,26 +462,15 @@
               }
             };
 
-            speechRecognition.onerror = () => simulateVoice();
-            speechRecognition.onend = stopVoice;
-            speechRecognition.start();
-          } catch(e) {
-            simulateVoice();
-          }
-        } else {
-          simulateVoice();
-        }
-      }
+            speechRecognition.onerror = (err) => {
+              console.warn("SpeechRecognition error:", err.error);
+            };
 
-      function simulateVoice() {
-        setTimeout(() => {
-          if (!isRecording) return;
-          const isEn = KhojLanguage.getLanguage() === 'en';
-          const simText = isEn ? "Change theme color to saffron" : "थीम रंग भगवा करा";
-          editInstructionInput.value = simText;
-          stopVoice();
-          KhojApp.showToast(KhojLanguage.t('toastVoiceTranscribed'), "info");
-        }, 1800);
+            speechRecognition.start();
+          } catch(srErr) {
+            console.warn("SpeechRecognition start error:", srErr);
+          }
+        }
       }
 
       function stopVoice() {
@@ -437,6 +478,14 @@
         editVoiceMicBtn.classList.remove('recording');
         editVoiceStatus.textContent = KhojLanguage.t('editorMicPrompt');
         editVoiceStatus.style.color = "#6b7280";
+
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          try { mediaRecorder.stop(); } catch(e) {}
+        }
+        if (micStream) {
+          micStream.getTracks().forEach(track => track.stop());
+          micStream = null;
+        }
         if (speechRecognition) {
           try { speechRecognition.stop(); } catch(e) {}
           speechRecognition = null;
