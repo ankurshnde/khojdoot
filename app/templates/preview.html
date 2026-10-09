@@ -244,9 +244,19 @@
         const spec = KhojWebsite.getCurrentSpec();
         renderedSiteContent.innerHTML = KhojWebsite.renderCompleteWebsite(biz, spec);
         const slug = biz.slug || 'my-shop';
-        previewUrlLabel.textContent = `khojdoot.com/merchant/${slug}`;
-        publishLiveBtn.href = `merchant.html?slug=${slug}`;
+        previewUrlLabel.textContent = `localhost:8000/merchant/${slug}`;
+        publishLiveBtn.href = `/merchant/${slug}`;
       }
+
+      publishLiveBtn.addEventListener('click', async (e) => {
+        const biz = KhojBusiness.getCurrentBusiness();
+        const slug = biz.slug || 'my-shop';
+        try {
+          await fetch(`/api/website/${slug}/publish`, { method: 'POST' });
+        } catch (err) {
+          console.warn("Backend publish sync error:", err);
+        }
+      });
 
       // Viewport mode switcher
       btnDesk.addEventListener('click', () => {

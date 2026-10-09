@@ -278,19 +278,34 @@
       }
 
       // BUTTON 1: Approved -> Unlocks preview & redirects to preview.html!
-      btnApprove.addEventListener('click', () => {
+      btnApprove.addEventListener('click', async () => {
         saveFormChanges();
         KhojBusiness.approveBusinessInfo(currentBiz);
 
         // Set persistent approval flag
         localStorage.setItem('khojdoot_has_approved', 'true');
+        btnApprove.disabled = true;
+
+        const slug = currentBiz.slug || 'my-shop';
+
+        // Connect directly to backend Checkpoint 1 approval and Checkpoint 2 generation
+        try {
+          await fetch(`/api/merchants/${slug}/checkpoint1/approve`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ approved: true })
+          });
+          await fetch(`/api/website/${slug}/generate`, { method: 'POST' });
+        } catch (err) {
+          console.warn("Backend approval sync error:", err);
+        }
 
         KhojApp.showToast(KhojLanguage.t('toastApprovedMsg'), "success");
 
         // Connected redirect to preview.html!
         setTimeout(() => {
           window.location.href = 'preview.html';
-        }, 600);
+        }, 500);
       });
 
       // BUTTON 2: Not approved -> shows notice and allows user to refine or go back

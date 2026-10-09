@@ -90,25 +90,28 @@ def _render_template(filename: str) -> str:
     raise HTTPException(status_code=404, detail=f"Template {filename} not found")
 
 
+@router.get("/index.html", response_class=HTMLResponse)
 @router.get("/index", response_class=HTMLResponse)
 def view_index_hub():
     """Renders the main KhojDoot Feature Hub."""
     return _render_template("index.html")
 
 
-
+@router.get("/login.html", response_class=HTMLResponse)
 @router.get("/login", response_class=HTMLResponse)
 def view_login_page():
     """Renders the 10-digit mobile login and OTP gate."""
     return _render_template("login.html")
 
 
+@router.get("/chat.html", response_class=HTMLResponse)
 @router.get("/chat", response_class=HTMLResponse)
 def view_chat_page():
     """Renders the conversational multimodal onboarding interface."""
     return _render_template("chat.html")
 
 
+@router.get("/approval.html", response_class=HTMLResponse)
 @router.get("/approval", response_class=HTMLResponse)
 @router.get("/business-approval", response_class=HTMLResponse)
 def view_approval_page():
@@ -116,6 +119,7 @@ def view_approval_page():
     return _render_template("approval.html")
 
 
+@router.get("/preview.html", response_class=HTMLResponse)
 @router.get("/preview", response_class=HTMLResponse)
 @router.get("/website-preview", response_class=HTMLResponse)
 def view_preview_page():
@@ -123,11 +127,18 @@ def view_preview_page():
     return _render_template("preview.html")
 
 
+@router.get("/editor.html", response_class=HTMLResponse)
 @router.get("/editor", response_class=HTMLResponse)
 @router.get("/edit-website", response_class=HTMLResponse)
 def view_editor_page():
     """Renders the live split-screen conversational and voice website editor."""
     return _render_template("editor.html")
+
+
+@router.get("/merchant.html", response_class=HTMLResponse)
+def view_merchant_template_page():
+    """Renders merchant standalone template view."""
+    return _render_template("merchant.html")
 
 
 @router.get("/merchant/{slug}/card", response_class=HTMLResponse)

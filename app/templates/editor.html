@@ -307,11 +307,12 @@
         chkContact.checked = KhojWebsite.isSectionEnabled(spec, 'contact');
       }
 
-      function applyEdit(instructionText) {
+      async function applyEdit(instructionText) {
         if (!instructionText || !instructionText.trim()) return;
 
         const biz = KhojBusiness.getCurrentBusiness();
         const spec = KhojWebsite.getCurrentSpec();
+        const slug = biz.slug || 'my-shop';
 
         const result = KhojWebsite.applyConversationalEdit(instructionText, biz, spec);
 
@@ -319,6 +320,17 @@
         const changeMsg = result.changes.join(', ') || KhojLanguage.t('toastEditApplied');
         KhojApp.showToast(changeMsg, 'success');
         editInstructionInput.value = '';
+
+        // Also sync edit with backend AI Patcher (Google Gemma 31B)
+        try {
+          await fetch(`/api/website/${slug}/edit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ instruction: instructionText })
+          });
+        } catch (err) {
+          console.warn("Backend edit sync fallback:", err);
+        }
       }
 
       btnApplyEdit.addEventListener('click', () => {

@@ -454,7 +454,7 @@
       });
 
       // Process input and navigate to approval.html
-      function submitBusinessInfo(text) {
+      async function submitBusinessInfo(text) {
         sendBtn.disabled = true;
 
         const curLang = KhojLanguage.getLanguage();
@@ -466,6 +466,38 @@
         }
         business.status = "Pending Approval";
         KhojBusiness.saveCurrentBusiness(business);
+
+        const slug = business.slug || ('biz-' + Date.now().toString(36));
+
+        // Connect directly to FastAPI backend to run LangGraph extraction & SQLite persistence
+        try {
+          const apiLang = curLang === 'hi' ? 'hi-IN' : (curLang === 'en' ? 'en-IN' : 'mr-IN');
+          const resp = await fetch(`/api/merchants/${slug}/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text, language: apiLang })
+          });
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data.data && data.data.infobin) {
+              const ib = data.data.infobin;
+              if (ib.name) business.name = ib.name;
+              if (ib.phone) business.phone = ib.phone;
+              if (ib.location) business.city = ib.location;
+              if (ib.services) business.tagline = ib.services;
+              if (ib.menu && ib.menu.length) {
+                business.services = ib.menu.map(m => ({
+                  name: m.item,
+                  price: m.price ? `₹${m.price}` : 'योग्य दरात',
+                  description: ''
+                }));
+              }
+              KhojBusiness.saveCurrentBusiness(business);
+            }
+          }
+        } catch (err) {
+          console.warn("Backend API sync fallback to local model:", err);
+        }
 
         KhojApp.showToast(KhojLanguage.t('botSummaryNotice'), "success");
 
