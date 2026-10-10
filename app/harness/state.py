@@ -15,6 +15,10 @@ class AgentState(TypedDict, total=False):
     intent: Optional[str]  # NEW_BUSINESS_INFO, EDIT_REQUEST, CLARIFICATION
     infobin: Optional[Dict[str, Any]]
     infobin_valid: bool
+    is_complete: bool
+    missing_fields: List[str]
+    clarification_question: Optional[str]
+    language: Optional[str]
     checkpoint1_approved: bool
     edit_instruction: Optional[str]
     website_spec: Optional[Dict[str, Any]]

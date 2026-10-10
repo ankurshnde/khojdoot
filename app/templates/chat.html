@@ -1,674 +1,914 @@
 <!DOCTYPE html>
-<html lang="mr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KhojDoot — Business Chat & Voice Onboarding</title>
-  <link rel="stylesheet" href="/static/css/style.css">
-  <style>
-    .chat-page-container {
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 32px 20px 60px;
-    }
-    .flow-stepper-mini {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-    .flow-step-tag {
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 9999px;
-      background: #e2e8f0;
-      color: #475569;
-      font-weight: 600;
-      text-decoration: none;
-    }
-    .flow-step-tag.active {
-      background: var(--brand-maroon);
-      color: #ffffff;
-    }
-    .flow-step-tag.done {
-      background: #dcfce7;
-      color: #166534;
-    }
-    .chat-thread-box {
-      min-height: 120px;
-      max-height: 340px;
-      overflow-y: auto;
-      margin-bottom: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding-right: 4px;
-    }
-    .msg-row {
-      display: flex;
-      gap: 10px;
-      animation: fadeIn 0.2s ease;
-    }
-    .msg-user {
-      justify-content: flex-end;
-    }
-    .msg-user .bubble {
-      background-color: #f3f4f6;
-      color: #111827;
-      padding: 10px 16px;
-      border-radius: 18px 18px 4px 18px;
-      max-width: 85%;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    .msg-bot {
-      justify-content: flex-start;
-    }
-    .bot-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background-color: var(--brand-maroon);
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-    .msg-bot .bubble {
-      background-color: #ffffff;
-      color: #111827;
-      padding: 12px 16px;
-      border-radius: 4px 18px 18px 18px;
-      max-width: 88%;
-      font-size: 14px;
-      line-height: 1.5;
-      border: 1px solid var(--border-light);
-      box-shadow: var(--shadow-sm);
-    }
-    .input-card {
-      background-color: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: var(--radius-lg);
-      padding: 14px 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      transition: border-color 0.2s;
-    }
-    .input-card:focus-within {
-      border-color: #9ca3af;
-    }
-    .input-field {
-      width: 100%;
-      border: none;
-      outline: none;
-      resize: none;
-      font-family: inherit;
-      font-size: 14.5px;
-      line-height: 1.5;
-      color: #111827;
-      background: transparent;
-      min-height: 70px;
-    }
-    .input-bar-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid #f3f4f6;
-    }
-    .input-tools {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .tool-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 1px solid #e5e7eb;
-      background: #ffffff;
-      color: #6b7280;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tool-btn:hover {
-      background: #f9fafb;
-      color: #111827;
-    }
-    .tool-btn.recording {
-      background: #fee2e2;
-      color: #dc2626;
-      border-color: #fca5a5;
-    }
-    .submit-btn {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: var(--brand-maroon);
-      color: #ffffff;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .submit-btn:hover {
-      background: #5a1427;
-    }
-    .submit-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-    .chips-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-    .chip-item {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      padding: 6px 13px;
-      border-radius: 9999px;
-      font-size: 13px;
-      color: #374151;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .chip-item:hover {
-      background: #f3f4f6;
-      border-color: #d1d5db;
-      color: #111827;
-    }
-  </style>
+  <title>KhojDoot — AI Business Agent Chat</title>
+  <link rel="stylesheet" href="/static/css/mono.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="chat-page-layout">
 
-  <!-- Unified Navigation Header -->
-  <header class="site-header">
-    <div class="brand-wrapper">
-      <a href="index.html" class="brand-logo">
-        <span data-i18n="brandName">KhojDoot</span> <span class="badge-beta" data-i18n="betaBadge">बीटा</span>
-      </a>
-    </div>
+  <!-- Top Minimal Nav -->
+  <header class="mono-nav" style="flex-shrink: 0;">
+    <a href="/chat.html" class="mono-brand">
+      <span class="mono-brand-dot"></span>
+      KhojDoot
+    </a>
 
-    <nav class="nav-links">
-      <a href="index.html" class="nav-link">Hub</a>
-      <a href="login.html" class="nav-link">लॉगिन (Login)</a>
-      <a href="chat.html" class="nav-link active" data-i18n="navCreate">चॅट (Chat)</a>
-      <a href="approval.html" class="nav-link" data-i18n="navApproval">मंजुरी (Approval)</a>
-      <a href="preview.html" class="nav-link" data-i18n="navPreview">पूर्वावलोकन (Preview)</a>
-      <a href="editor.html" class="nav-link" data-i18n="navEditor">संपादक (Editor)</a>
-      <a href="merchant.html" class="nav-link" data-i18n="navMerchant">व्यापारी साइट</a>
-      <a href="card.html" class="nav-link">कार्ड</a>
-      <a href="labs.html" class="nav-link" data-i18n="navLabs">लॅब्स</a>
-    </nav>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button type="button" class="quick-chip" id="togglePresetsNavBtn" onclick="togglePresetsBar()" style="padding: 6px 12px; font-size: 12px;" title="Show or hide the 7 demo presets">
+        ⚡ 7 Demos
+      </button>
 
-    <div class="header-actions">
-      <div id="userProfilePill" style="display: none; align-items: center; gap: 8px; font-size: 13px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 5px 12px; border-radius: 9999px;">
-        <span>👤 <strong id="userProfileName">व्यापारी</strong> (<span id="userProfilePhone">---</span>)</span>
-        <a href="login.html" style="color: #dc2626; font-size: 12px; font-weight: 600; text-decoration: underline;" data-i18n="userChangeBtn">बदला</a>
-      </div>
+      <select id="voiceLangSelect" class="voice-lang-select" title="Change Conversation Language">
+        <option value="mr-IN">मराठी (Marathi)</option>
+        <option value="te-IN">తెలుగు (Telugu)</option>
+        <option value="hi-IN">हिन्दी (Hindi)</option>
+        <option value="en-IN">English</option>
+      </select>
 
-      <div class="lang-dropdown-wrapper">
-        <button id="langDropdownBtn" class="lang-selector-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-          <span id="currentLangLabel">मराठी</span>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div id="langDropdownMenu" class="lang-dropdown-menu">
-          <button class="lang-option active" data-lang="mr">मराठी</button>
-          <button class="lang-option" data-lang="hi">हिंदी</button>
-          <button class="lang-option" data-lang="te">తెలుగు</button>
-          <button class="lang-option" data-lang="en">English</button>
-        </div>
+      <div class="mono-user-status">
+        <span id="userBadge">📱 <strong id="userPhoneDisplay">9822012345</strong></span>
+        <button type="button" class="mono-logout-btn" id="logoutBtn">Sign out</button>
       </div>
     </div>
   </header>
 
-  <main class="main-content">
-    <div class="chat-page-container">
-
-      <!-- Breadcrumbs -->
-      <div class="flow-stepper-mini">
-        <a href="login.html" class="flow-step-tag done">✓ 1. Login</a>
-        <span class="flow-step-tag active">2. Chat Input</span>
-        <a href="approval.html" class="flow-step-tag">3. Approval</a>
-        <a href="preview.html" class="flow-step-tag">4. Preview & Edit</a>
+  <!-- Top 7 Live Indic Business Presets (Permutations of DESIGN.MD & Components) -->
+  <section class="demo-presets-container" id="demoPresetsSection">
+    <div class="demo-presets-header">
+      <div class="demo-presets-title">
+        <span>⚡ 7 Live Indic Business Presets</span>
+        <span style="font-weight: 500; color: #666; font-size: 11px;">(Marathi • Telugu • Hindi • English • 7 Distinct Themes)</span>
       </div>
-
-      <!-- Heading -->
-      <h1 class="main-heading" id="workspaceGreeting" data-i18n="tellUsTitle">
-        तुमच्या व्यवसायाबद्दल सांगा
-      </h1>
-      <p class="sub-heading" id="workspaceSubGreeting" data-i18n="tellUsSubtitle">
-        तुम्ही टाइप करू शकता, बोलू शकता किंवा फोटो पाठवू शकता. आम्ही तुमची वेबसाइट आपोआप तयार करू.
-      </p>
-
-      <!-- Chat Thread -->
-      <div id="chatThread" class="chat-thread-box">
-        <div class="msg-row msg-bot">
-          <div class="bot-icon">KD</div>
-          <div class="bubble" id="welcomeBotBubble" data-i18n="botWelcomeMsg">
-            नमस्कार! तुमच्या दुकानाचे किंवा व्यवसायाचे नाव काय आहे आणि तुम्ही कोणत्या सेवा पुरवता? तुम्ही बोलून किंवा फोटो देऊनही सांगू शकता.
-          </div>
-        </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span class="demo-presets-desc">Click any preset to run reasoning &rarr; summary &rarr; approve</span>
+        <button type="button" onclick="document.getElementById('demoPresetsSection').style.display='none'" title="Close presets bar" style="background: none; border: none; font-size: 16px; font-weight: bold; cursor: pointer; color: #444; padding: 2px 6px; line-height: 1;">✕</button>
       </div>
-
-      <!-- Voice Alert Bar -->
-      <div id="voiceAlert" style="display: none; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 8px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 10px; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="voice-mic-pill" data-i18n="voiceListening">🔴 बोलत राहा (Voice Typing...)</span>
-          <span id="voiceLiveTranscript" style="font-weight: 500; font-size: 12px;" data-i18n="voiceMicActive">माईक चालू आहे...</span>
-        </div>
-        <button type="button" id="stopVoiceBtn" style="background: none; border: none; color: #dc2626; font-weight: 700; cursor: pointer;" data-i18n="btnStopVoice">थांबवा ✕</button>
-      </div>
-
-      <!-- Image Preview Thumbnail Bar -->
-      <div id="imagePreviewBar" style="display: none; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <img id="imagePreviewImg" src="" alt="preview" style="width: 36px; height: 36px; object-fit: cover; border-radius: 6px;">
-          <div>
-            <div id="imagePreviewName" style="font-size: 13px; font-weight: 600; color: #374151;">rate-card.jpg</div>
-            <div style="font-size: 11px; color: #16a34a;" data-i18n="photoAttachedBadge">फोटो जोडला आहे ✓</div>
-          </div>
-        </div>
-        <button type="button" id="removePhotoBtn" style="background: none; border: none; color: #ef4444; font-size: 18px; cursor: pointer;">×</button>
-      </div>
-
-      <!-- Main Input Card -->
-      <div class="input-card">
-        <textarea 
-          id="promptInput" 
-          class="input-field" 
-          rows="3" 
-          data-i18n="promptPlaceholderText"
-          placeholder="तुमच्या भाषेत व्यवसायाची माहिती लिहा किंवा बोला..."
-        ></textarea>
-
-        <div class="input-bar-bottom">
-          <div class="input-tools">
-            <!-- Mic Button for Voice Typing -->
-            <button type="button" id="micBtn" class="tool-btn" data-i18n-title="btnVoice" title="बोलून टाइप करा (Voice Typing)">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                <line x1="12" y1="19" x2="12" y2="23"/>
-                <line x1="8" y1="23" x2="16" y2="23"/>
-              </svg>
-            </button>
-
-            <!-- Photo Upload -->
-            <button type="button" id="photoBtn" class="tool-btn" data-i18n-title="btnImage" title="फोटो जोडा (Photo / Menu)">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <circle cx="8.5" cy="8.5" r="1.5"/>
-                <polyline points="21 15 16 10 5 21"/>
-              </svg>
-            </button>
-
-            <!-- Attach file -->
-            <button type="button" id="attachBtn" class="tool-btn" data-i18n-title="btnAttach" title="फाइल जोडा (Attach)">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-              </svg>
-            </button>
-
-            <input type="file" id="photoFileInput" accept="image/*" style="display: none;">
-          </div>
-
-          <!-- Submit Button -->
-          <button type="button" id="sendBtn" class="submit-btn" data-i18n-title="btnSend" title="पाठवा" disabled>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"/>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Quick Example Chips -->
-      <div style="margin-top: 20px;">
-        <div style="font-size: 13px; color: #9ca3af;" data-i18n="examplesLabel">उदाहरणे (किंवा यापैकी निवडा):</div>
-        <div class="chips-row">
-          <button type="button" class="chip-item" data-example="tiffin">
-            <span data-i18n="chipTiffinLabel">🍱 सुनिता टिफिन सेवा (पुणे)</span>
-          </button>
-          <button type="button" class="chip-item" data-example="tea">
-            <span data-i18n="chipTeaLabel">☕ साई चहा सेंटर (पुणे)</span>
-          </button>
-          <button type="button" class="chip-item" data-example="garage">
-            <span data-i18n="chipGarageLabel">🚗 शिंदे ऑटो सर्व्हिसेस (नाशिक)</span>
-          </button>
-          <button type="button" class="chip-item" data-example="handmade">
-            <span data-i18n="chipKiranaLabel">🧵 पाटील किराणा व वस्तू</span>
-          </button>
-        </div>
-      </div>
-
     </div>
+    <div class="demo-presets-grid" id="demoPresetsGrid">
+      <!-- 7 Presets injected via JavaScript -->
+    </div>
+  </section>
+
+  <!-- Conversational Agent Chat Stream -->
+  <main class="chat-stream-wrapper" id="chatStream">
+
+    <!-- Initial Agent Greeting -->
+    <div class="chat-message-row agent">
+      <div class="chat-bubble-agent">
+        <div class="agent-badge-header">
+          <span class="agent-badge-pill">AI AGENT</span>
+          <span>KhojDoot Reasoning Engine</span>
+        </div>
+        <p style="font-size: 15px; margin-bottom: 12px;" id="welcomeMessageText">
+          नमस्कार! मी तुमचा KhojDoot AI सहाय्यक आहे. तुमच्या दुकानाबद्दल सांगा किंवा वर दिलेल्या ७ उदाहरणांमधून निवडा.
+        </p>
+
+        <!-- Quick 1-Click Inspiration Chips for Demo -->
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;" id="welcomePresetsChips">
+          <!-- 7 quick chips injected via JavaScript -->
+        </div>
+      </div>
+    </div>
+
   </main>
 
-  <footer class="site-footer">
-    KhojDoot • <span data-i18n="footerCopyright">सर्व हक्क राखीव. खोजदूत प्रादेशिक नो-कोड वेबसाइट प्रणाली.</span>
+  <!-- Sticky Bottom Input Area (Lovable Pattern) -->
+  <footer class="chat-bottom-input-bar">
+
+    <!-- Lovable Voice Waveform Bar (Image 2 Replica) -->
+    <div class="lovable-waveform-bar" id="waveformBar" style="display: none; width: 100%; max-width: 760px; margin-bottom: 6px;">
+      <button type="button" class="waveform-cancel-btn" id="cancelVoiceBtn" title="Cancel recording">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <div class="waveform-visualizer">
+        <canvas id="waveformCanvas" width="460" height="32" class="waveform-canvas"></canvas>
+      </div>
+
+      <div class="waveform-right-actions">
+        <button type="button" class="waveform-stop-btn" id="stopVoiceBtn" title="Stop & show text">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="3"/></svg>
+        </button>
+        <button type="button" class="waveform-send-btn" id="sendVoiceBtn" title="Send to Agent">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Speech Detection Banner -->
+    <div class="voice-live-banner" id="voiceLiveBanner" style="display: none; width: 100%; max-width: 760px; margin-bottom: 6px;">
+      <div class="voice-live-content">
+        <span class="voice-live-dot"></span>
+        <span class="voice-live-text" id="liveTranscriptDisplay">Listening... Speak now</span>
+      </div>
+    </div>
+
+    <!-- Floating Input Pill -->
+    <div class="lovable-input-wrapper" style="width: 100%; max-width: 760px;">
+      <textarea 
+        id="promptInput" 
+        class="lovable-textarea" 
+        rows="2" 
+        placeholder="Tell KhojDoot about your shop... e.g. Sri Venkateswara Tiffin Center, MVP Colony Vizag. Idli ₹40, Dosa ₹50. Phone 9848012345."
+        autofocus
+      ></textarea>
+
+      <div class="lovable-actions-row">
+        <div class="lovable-left-actions">
+          <input type="file" id="photoFileInput" accept="image/*" style="display: none;">
+          <button type="button" class="lovable-tool-btn" id="addPhotoBtn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Photo / Menu
+          </button>
+          <span id="photoAttachedNotice" style="font-size: 12px; font-weight: 600; color: #000; display: none;">✓ Photo attached</span>
+        </div>
+
+        <div class="lovable-right-actions">
+          <!-- Lovable Mic Button -->
+          <button type="button" class="lovable-mic-btn" id="micBtn" title="Speak in Telugu, Marathi, Hindi, or English">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          </button>
+
+          <!-- Submit / Send to Agent Button -->
+          <button type="button" class="lovable-build-btn" id="sendChatBtn">
+            Send ↗
+          </button>
+        </div>
+      </div>
+    </div>
   </footer>
 
-  <script src="/static/js/language.js"></script>
-  <script src="/static/js/business.js"></script>
-  <script src="/static/js/website.js"></script>
-  <script src="/static/js/app.js"></script>
+  <div id="monoToast" class="mono-toast"></div>
+
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const workspaceGreeting = document.getElementById('workspaceGreeting');
-      const promptInput = document.getElementById('promptInput');
-      const sendBtn = document.getElementById('sendBtn');
-      const chatThread = document.getElementById('chatThread');
-      const micBtn = document.getElementById('micBtn');
-      const photoBtn = document.getElementById('photoBtn');
-      const attachBtn = document.getElementById('attachBtn');
-      const photoFileInput = document.getElementById('photoFileInput');
-      const voiceAlert = document.getElementById('voiceAlert');
-      const voiceLiveTranscript = document.getElementById('voiceLiveTranscript');
-      const stopVoiceBtn = document.getElementById('stopVoiceBtn');
-      const imagePreviewBar = document.getElementById('imagePreviewBar');
-      const imagePreviewImg = document.getElementById('imagePreviewImg');
-      const imagePreviewName = document.getElementById('imagePreviewName');
-      const removePhotoBtn = document.getElementById('removePhotoBtn');
-      const userProfilePill = document.getElementById('userProfilePill');
-      const userProfileName = document.getElementById('userProfileName');
-      const userProfilePhone = document.getElementById('userProfilePhone');
+    // 1. Auth check
+    const isAuth = localStorage.getItem('khojdoot_is_authenticated');
+    const userPhone = localStorage.getItem('khojdoot_user_phone') || '9822012345';
+    document.getElementById('userPhoneDisplay').textContent = userPhone;
 
-      let currentUser = null;
-      let attachedPhoto = null;
-      let isRecording = false;
-      let speechRecognition = null;
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('khojdoot_is_authenticated');
+      localStorage.removeItem('khojdoot_user_phone');
+      window.location.href = '/login.html';
+    });
 
-      // Check login session
-      try {
-        const u = JSON.parse(localStorage.getItem('khojdoot_user') || '{}');
-        if (u && u.phone) {
-          currentUser = u;
-          userProfileName.textContent = u.name || KhojLanguage.t('userProfileDefault');
-          userProfilePhone.textContent = u.phone;
-          userProfilePill.style.display = 'inline-flex';
-          workspaceGreeting.textContent = `${KhojLanguage.t('greetingHello')} ${u.name}!`;
-        }
-      } catch(e) {}
+    const chatStream = document.getElementById('chatStream');
+    const promptInput = document.getElementById('promptInput');
+    const sendChatBtn = document.getElementById('sendChatBtn');
+    const voiceLangSelect = document.getElementById('voiceLangSelect');
+    const monoToast = document.getElementById('monoToast');
 
-      function checkSendState() {
-        const hasText = promptInput.value.trim().length > 0;
-        const hasFile = attachedPhoto !== null;
-        sendBtn.disabled = !(hasText || hasFile);
+    let currentMerchantSlug = localStorage.getItem('khojdoot_active_slug') || ('shop-' + Date.now().toString(36));
+    localStorage.setItem('khojdoot_active_slug', currentMerchantSlug);
+
+    function showToast(msg) {
+      monoToast.textContent = msg;
+      monoToast.style.display = 'block';
+      setTimeout(() => { monoToast.style.display = 'none'; }, 3000);
+    }
+
+    function scrollToBottom() {
+      chatStream.scrollTop = chatStream.scrollHeight;
+    }
+
+    function updateLanguageUI(lang) {
+      voiceLangSelect.value = lang;
+      localStorage.setItem('khojdoot_preferred_lang', lang);
+      const welcome = document.getElementById('welcomeMessageText');
+      if (lang === 'mr-IN') {
+        welcome.textContent = "नमस्कार! मी तुमचा KhojDoot AI सहाय्यक आहे. तुमच्या दुकानाबद्दल किंवा सेवेबद्दल सांगा (नाव, काय विकता, पत्ता आणि फोन नंबर). तुम्ही बोलू शकता किंवा खाली टाईप करू शकता!";
+      } else if (lang === 'te-IN') {
+        welcome.textContent = "నమస్కారం! నేను మీ KhojDoot AI అసిస్టెంట్‌ని. మీ వ్యాపారం లేదా షాప్ గురించి నాకు చెప్పండి (పేరు, మీరు ఏమి విక్రయిస్తారు, మీ చిరునామా, మరియు ఫోన్ నంబర్). మీరు మాట్లాడవచ్చు లేదా కింద టైప్ చేయవచ్చు!";
+      } else if (lang === 'hi-IN') {
+        welcome.textContent = "नमस्ते! मैं आपका KhojDoot AI सहायक हूँ। अपने व्यवसाय या दुकान के बारे में बताएं (नाम, क्या बेचते हैं, पता और फोन नंबर)। आप बोल सकते हैं या नीचे लिख सकते हैं!";
+      } else {
+        welcome.textContent = "Hello! I am your KhojDoot AI assistant. Tell me about your business (shop name, products/menu, location, and phone number). You can speak or type below!";
       }
-      promptInput.addEventListener('input', checkSendState);
+    }
 
-      // Example Chips
-      document.querySelectorAll('.chip-item[data-example]').forEach(chip => {
-        chip.addEventListener('click', () => {
-          const type = chip.getAttribute('data-example');
-          const isEn = KhojLanguage.getLanguage() === 'en';
-          let text = "";
+    // Language change greeting update
+    voiceLangSelect.addEventListener('change', () => {
+      updateLanguageUI(voiceLangSelect.value);
+      if (recognition && isRecording) {
+        recognition.stop();
+        recognition.lang = voiceLangSelect.value;
+        try { recognition.start(); } catch(e) {}
+      }
+    });
 
-          if (type === 'tiffin') {
-            text = isEn 
-              ? "I run a tiffin service named Sunita Tiffin in Pune. We deliver fresh homemade lunch and dinner meals daily at fair prices."
-              : "मी पुण्यात सुनिता टिफिन सेवा चालवतो. आम्ही घरगुती ताज्या जेवणाचे डबे, नाश्ता आणि पोळीभाजी वाजवी दरात देतो.";
-          } else if (type === 'tea') {
-            text = isEn
-              ? "I run a tea stall named Sai Tea Centre on FC Road Pune. We serve special ginger cardamom tea, fresh bun maska, and cream rolls."
-              : "माझे पुण्यात डेक्कन येथे साई चहा सेंटर आहे. स्पेशल आल्याचा चहा, मस्का पाव आणि क्रीम रोल मिळतात.";
-          } else if (type === 'garage') {
-            text = isEn
-              ? "I run a car and bike garage in Nashik named Shinde Auto Services. We do periodic servicing, engine repairs, and oil change."
-              : "माझे नाशिकमध्ये शिंदे ऑटो सर्व्हिसेस नावाचे गॅरेज आहे. कार व बाईक सर्व्हिसिंग, ऑईल चेंज आणि दुरुस्ती करतो.";
+    // Initialize with saved or default Marathi
+    const initialLang = localStorage.getItem('khojdoot_preferred_lang') || 'mr-IN';
+    updateLanguageUI(initialLang);
+
+
+    // =========================================================================
+    // 7 LIVE DEMO PRESETS (4 LANGUAGES • 7 DISTINCT DESIGN SYSTEMS)
+    // Permutations of DESIGN.MD and app/website/components
+    // =========================================================================
+    const DEMO_PRESETS = [
+      {
+        id: "demo_mr_rasoi",
+        lang: "mr-IN",
+        tag: "मराठी",
+        themeId: "home_kitchen",
+        themeName: "Home Kitchen",
+        title: "🍱 सुनीता घरगुती भाकरवडी व टिफिन",
+        meta: "गंगापूर रोड, नाशिक • ₹८० भाकरवडी, ₹९० डबा • 9423375123",
+        slug: "sunita-bhakarwadi-nashik",
+        prompt: "आमची सुनिता घरगुती भाकरवडी आणि टिफिन सेवा आहे, गंगापूर रोड नाशिक. रोज शुद्ध घरगुती जेवणाचा डबा ९० रुपयांत, खमंग स्पेशल भाकरवडी ८० रुपये आणि पुरणपोळी थाळी १४० रुपयांत मिळते. संपर्क ९४२३३७५१२३."
+      },
+      {
+        id: "demo_te_tiffin",
+        lang: "te-IN",
+        tag: "తెలుగు",
+        themeId: "playful_market",
+        themeName: "Playful Market",
+        title: "🥞 శ్రీ వెంకటేశ్వర టిఫిన్ సెంటర్",
+        meta: "MVP కాలనీ, వైజాగ్ • ₹40 ఇడ్లీ, ₹55 దోశ • 9848012345",
+        slug: "venkateswara-tiffins-vizag",
+        prompt: "మాది శ్రీ వెంకటేశ్వర టిఫిన్ సెంటర్, ఎం.వి.పి కాలనీ వైజాగ్. రోజూ వేడి వేడి ఇడ్లీ సాంబార్ ₹40, నేతి నెయ్యి కారం దోశ ₹55, పెసరట్టు ఉప్మా ₹60 మరియు స్పెషల్ ఫిల్టర్ కాఫీ ₹20 లభిస్తాయి. ఫోన్ 9848012345."
+      },
+      {
+        id: "demo_hi_chai",
+        lang: "hi-IN",
+        tag: "हिन्दी",
+        themeId: "local_heritage",
+        themeName: "Local Heritage",
+        title: "☕ शाही चाय और बन मस्का कैफे",
+        meta: "हजरतगंज, लखनऊ • ₹25 चाय, ₹35 मस्का • 9822154321",
+        slug: "shahi-chai-lucknow",
+        prompt: "हमारा शाही चाय और बन मस्का कैफे हजरतगंज लखनऊ में है। प्रसिद्ध स्पेशल कुल्हड़ केसर इलायची चाय ₹25, ताजा बन मस्का ₹35, समोसा चटनी ₹30 और मलाईदार लस्सी ₹50 मिलती है। संपर्क करें 9822154321."
+      },
+      {
+        id: "demo_en_boutique",
+        lang: "en-IN",
+        tag: "English",
+        themeId: "boutique_editorial",
+        themeName: "Boutique Editorial",
+        title: "👗 Ananya Handcrafted Cottons",
+        meta: "Jubilee Hills, Hyderabad • ₹1850 Sarees • 9849056789",
+        slug: "ananya-cottons-hyderabad",
+        prompt: "We are Ananya Handcrafted Cottons & Sarees located at Road No. 36, Jubilee Hills, Hyderabad. We craft Pure Mangalagiri Cotton Sarees ₹1850, Hand-block Kalamkari Kurtis ₹950, and Ikat Dupattas ₹650. Call or WhatsApp 9849056789."
+      },
+      {
+        id: "demo_mr_pottery",
+        lang: "mr-IN",
+        tag: "मराठी",
+        themeId: "natural_craft",
+        themeName: "Natural Craft",
+        title: "🏺 सह्याद्री माती कला व हस्तकला",
+        meta: "महाद्वार रोड, कोल्हापूर • ₹२५० माठ, ₹२०० तवा • 9822998877",
+        slug: "sahyadri-pottery-kolhapur",
+        prompt: "आमची सह्याद्री माती कला व हस्तकला संस्था महाद्वार रोड कोल्हापूर येथे आहे. शुद्ध लाल मातीचे पाण्याचे माठ २५० रुपये, नक्षीदार मातीची भांडी संच ४५० रुपये आणि हस्तनिर्मित मातीचा तवा २०० रुपये मिळतो. संपर्क ९८२२९९८८७७."
+      },
+      {
+        id: "demo_te_garage",
+        lang: "te-IN",
+        tag: "తెలుగు",
+        themeId: "neighborhood_pro",
+        themeName: "Neighborhood Pro",
+        title: "🔧 మారుతి ప్రెసిషన్ ఆటో కేర్",
+        meta: "కూకట్‌పల్లి, హైదరాబాద్ • ₹399 బైక్ సర్వీస్ • 9885011223",
+        slug: "maruti-autocare-hyderabad",
+        prompt: "మాది మారుతి ప్రెసిషన్ ఆటో కేర్ & డోర్‌స్టెప్ సర్వీస్, కూకట్‌పల్లి హైదరాబాద్. టూ-వీలర్ జనరల్ సర్వీస్ ₹399, ఇంజిన్ ఆయిల్ మార్పిడి ₹299, కార్ వాషింగ్ ₹699 మరియు 24/7 బ్రేక్‌డౌన్ సహాయం అందిస్తాము. ఫోన్ 9885011223."
+      },
+      {
+        id: "demo_hi_dairy",
+        lang: "hi-IN",
+        tag: "हिन्दी",
+        themeId: "timeless_elegance",
+        themeName: "Timeless Elegance",
+        title: "🥛 कृष्णा जैविक फार्म एवं A2 घी",
+        meta: "सिविल लाइन्स, जयपुर • ₹1450 A2 घी • 9829044332",
+        slug: "krishna-dairy-jaipur",
+        prompt: "हमारा कृष्णा जैविक फार्म एवं A2 देशी घी डेयरी सिविल लाइन्स जयपुर में स्थित है। शुद्ध गिर गाय का बिलोना A2 घी ₹1450 प्रति लीटर, ताजा कच्चा A2 दूध ₹75 प्रति लीटर और ताजा पनीर ₹420 प्रति किलो मिलता है। फोन करें 9829044332."
+      }
+    ];
+
+    function renderPresetsUI() {
+      const grid = document.getElementById('demoPresetsGrid');
+      const chips = document.getElementById('welcomePresetsChips');
+      if (grid) {
+        grid.innerHTML = DEMO_PRESETS.map((p, idx) => `
+          <button type="button" class="demo-card-btn" onclick="triggerDemoPreset(${idx})" title="Test ${p.title}">
+            <div class="demo-card-top">
+              <span class="demo-lang-pill">${p.tag}</span>
+              <span style="font-size: 11px; font-weight: 700; color: #111;">${p.themeName}</span>
+            </div>
+            <div class="demo-card-title">${p.title}</div>
+            <div class="demo-card-meta">${p.meta}</div>
+            <div class="demo-card-badge">⚡ 1-Click Reasoning & Preview</div>
+          </button>
+        `).join('');
+      }
+      if (chips) {
+        chips.innerHTML = DEMO_PRESETS.map((p, idx) => `
+          <button type="button" class="quick-chip" onclick="triggerDemoPreset(${idx})">
+            ${p.title.split(' ')[0]} ${p.tag} (${p.themeName})
+          </button>
+        `).join('');
+      }
+    }
+
+    function triggerDemoPreset(idx) {
+      const p = DEMO_PRESETS[idx];
+      if (!p) return;
+
+      // IMMEDIATELY dismiss the presets bar so the entire screen shows the chat!
+      const section = document.getElementById('demoPresetsSection');
+      if (section) {
+        section.style.display = 'none';
+      }
+
+      currentMerchantSlug = p.slug;
+      localStorage.setItem('khojdoot_active_slug', currentMerchantSlug);
+      voiceLangSelect.value = p.lang;
+      updateLanguageUI(p.lang);
+      promptInput.value = p.prompt;
+      showToast(`Selected: ${p.title} (${p.themeName})`);
+      sendMessage(p.prompt);
+    }
+
+    window.togglePresetsBar = function() {
+      const s = document.getElementById('demoPresetsSection');
+      if (!s) return;
+      s.style.display = (s.style.display === 'none' ? 'block' : 'none');
+    };
+
+    renderPresetsUI();
+
+    // Photo Attach
+    const addPhotoBtn = document.getElementById('addPhotoBtn');
+    const photoFileInput = document.getElementById('photoFileInput');
+    const photoAttachedNotice = document.getElementById('photoAttachedNotice');
+
+    addPhotoBtn.addEventListener('click', () => photoFileInput.click());
+    photoFileInput.addEventListener('change', () => {
+      if (photoFileInput.files && photoFileInput.files[0]) {
+        photoAttachedNotice.style.display = 'inline';
+        showToast("Photo selected! Send a message to extract.");
+      }
+    });
+
+    // =========================================================================
+    // LOVABLE WAVEFORM & SPEECH RECOGNITION
+    // =========================================================================
+    const micBtn = document.getElementById('micBtn');
+    const waveformBar = document.getElementById('waveformBar');
+    const waveformCanvas = document.getElementById('waveformCanvas');
+    const cancelVoiceBtn = document.getElementById('cancelVoiceBtn');
+    const stopVoiceBtn = document.getElementById('stopVoiceBtn');
+    const sendVoiceBtn = document.getElementById('sendVoiceBtn');
+    const voiceLiveBanner = document.getElementById('voiceLiveBanner');
+    const liveTranscriptDisplay = document.getElementById('liveTranscriptDisplay');
+
+    let isRecording = false;
+    let micStream = null;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let audioCtx = null;
+    let analyserNode = null;
+    let animFrameId = null;
+    let recognition = null;
+    let finalSpokenText = '';
+    let interimSpokenText = '';
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    function initSpeechRecognition() {
+      if (!SpeechRecognition) return null;
+      const rec = new SpeechRecognition();
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.lang = voiceLangSelect.value || 'mr-IN';
+
+      rec.onresult = (e) => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; ++i) {
+          if (e.results[i].isFinal) {
+            finalSpokenText += e.results[i][0].transcript + ' ';
           } else {
-            text = isEn
-              ? "I run Patil Grocery Store in Kolhapur selling premium grains, authentic spices, and free home delivery."
-              : "माझे कोल्हापूरमध्ये किराणा दुकान आहे. उत्तम प्रतीचे धान्य, मसाले आणि घरपोच सेवा उपलब्ध आहे.";
+            interim += e.results[i][0].transcript;
           }
-
-          promptInput.value = text;
-          checkSendState();
-          submitBusinessInfo(text);
-        });
-      });
-
-      sendBtn.addEventListener('click', () => {
-        const text = promptInput.value.trim();
-        if (text || attachedPhoto) submitBusinessInfo(text);
-      });
-
-      promptInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          const text = promptInput.value.trim();
-          if (text || attachedPhoto) submitBusinessInfo(text);
         }
-      });
-
-      // Process input and navigate to approval.html
-      async function submitBusinessInfo(text) {
-        sendBtn.disabled = true;
-
-        const curLang = KhojLanguage.getLanguage();
-        const business = KhojBusiness.extractAndCreateBusiness(text, curLang, attachedPhoto);
-
-        if (currentUser) {
-          business.ownerName = currentUser.name;
-          business.phone = `+91 ${currentUser.phone}`;
+        interimSpokenText = interim;
+        const currentHeard = (finalSpokenText + interimSpokenText).trim();
+        if (currentHeard) {
+          liveTranscriptDisplay.textContent = '🗣️ "' + currentHeard + '"';
+          promptInput.value = currentHeard;
         }
-        business.status = "Pending Approval";
-        KhojBusiness.saveCurrentBusiness(business);
+      };
 
-        const slug = business.slug || ('biz-' + Date.now().toString(36));
+      rec.onerror = (e) => {
+        console.warn("SpeechRecognition notice:", e.error);
+      };
 
-        // Connect directly to FastAPI backend to run LangGraph extraction & SQLite persistence
-        try {
-          const apiLang = curLang === 'hi' ? 'hi-IN' : (curLang === 'en' ? 'en-IN' : 'mr-IN');
-          const resp = await fetch(`/api/merchants/${slug}/chat`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text, language: apiLang })
-          });
-          if (resp.ok) {
-            const data = await resp.json();
-            if (data.data && data.data.infobin) {
-              const ib = data.data.infobin;
-              if (ib.name) business.name = ib.name;
-              if (ib.phone) business.phone = ib.phone;
-              if (ib.location) business.city = ib.location;
-              if (ib.services) business.tagline = ib.services;
-              if (ib.menu && ib.menu.length) {
-                business.services = ib.menu.map(m => ({
-                  name: m.item,
-                  price: m.price ? `₹${m.price}` : 'योग्य दरात',
-                  description: ''
-                }));
-              }
-              KhojBusiness.saveCurrentBusiness(business);
-            }
-          }
-        } catch (err) {
-          console.warn("Backend API sync fallback to local model:", err);
-        }
-
-        KhojApp.showToast(KhojLanguage.t('botSummaryNotice'), "success");
-
-        // Connected navigation to approval.html!
-        setTimeout(() => {
-          window.location.href = 'approval.html';
-        }, 600);
-      }
-
-      // Voice Recording & Ingestion Engine (MediaRecorder + Web Speech API + Sarvam AI)
-      let mediaRecorder = null;
-      let audioChunks = [];
-      let micStream = null;
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-      async function startVoice() {
+      rec.onend = () => {
         if (isRecording) {
-          stopVoice();
-          return;
+          try { rec.start(); } catch(err) {}
         }
+      };
 
+      return rec;
+    }
+
+    micBtn.addEventListener('click', () => {
+      if (!isRecording) startVoiceRecording();
+      else stopVoiceRecording(true);
+    });
+
+    cancelVoiceBtn.addEventListener('click', () => {
+      cleanupRecording();
+      showToast("Voice cancelled.");
+    });
+
+    stopVoiceBtn.addEventListener('click', () => {
+      stopVoiceRecording(false);
+    });
+
+    sendVoiceBtn.addEventListener('click', () => {
+      stopVoiceRecording(true);
+    });
+
+    async function startVoiceRecording() {
+      try {
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         isRecording = true;
-        micBtn.classList.add('recording');
-        voiceAlert.style.display = 'flex';
-        voiceLiveTranscript.textContent = "माइक चालू आहे... तुमच्या व्यवसायाबद्दल बोला (Recording...)";
-
-        const curLang = KhojLanguage.getLanguage();
-        const langCode = curLang === 'mr' ? 'mr-IN' : (curLang === 'hi' ? 'hi-IN' : (curLang === 'te' ? 'te-IN' : 'en-IN'));
-
+        finalSpokenText = '';
+        interimSpokenText = '';
         audioChunks = [];
 
-        // 1. First attempt: Real microphone recording using MediaRecorder (WAV/WebM)
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          try {
-            micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : (MediaRecorder.isTypeSupported('audio/ogg') ? 'audio/ogg' : '');
-            mediaRecorder = mimeType ? new MediaRecorder(micStream, { mimeType }) : new MediaRecorder(micStream);
-
-            mediaRecorder.ondataavailable = (event) => {
-              if (event.data && event.data.size > 0) {
-                audioChunks.push(event.data);
-              }
-            };
-
-            mediaRecorder.onstop = async () => {
-              if (audioChunks.length > 0) {
-                const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/wav' });
-                voiceLiveTranscript.textContent = "आवाज प्रक्रिया करत आहे... (Transcribing via Sarvam Saaras AI...)";
-                await sendVoiceToBackend(audioBlob, langCode);
-              }
-            };
-
-            mediaRecorder.start();
-          } catch (micErr) {
-            console.warn("MediaRecorder permission/access error:", micErr);
-          }
-        }
-
-        // 2. Parallel: Web Speech API for real-time live typing on supported browsers
-        if (SpeechRecognition) {
-          try {
-            speechRecognition = new SpeechRecognition();
-            speechRecognition.lang = langCode;
-            speechRecognition.continuous = true;
-            speechRecognition.interimResults = true;
-
-            speechRecognition.onresult = (e) => {
-              const res = Array.from(e.results).map(r => r[0].transcript).join('');
-              if (res) {
-                promptInput.value = res;
-                voiceLiveTranscript.textContent = res;
-                checkSendState();
-              }
-            };
-
-            speechRecognition.onerror = (err) => {
-              console.warn("SpeechRecognition error:", err.error);
-            };
-
-            speechRecognition.start();
-          } catch(srErr) {
-            console.warn("SpeechRecognition start error:", srErr);
-          }
-        }
-      }
-
-      async function sendVoiceToBackend(blob, langCode) {
-        const slug = (KhojBusiness.getCurrentBusiness() && KhojBusiness.getCurrentBusiness().slug) || 'temp-merchant';
-        const formData = new FormData();
-        const ext = blob.type.includes('ogg') ? '.ogg' : (blob.type.includes('webm') ? '.webm' : '.wav');
-        formData.append('file', blob, `voice_note${ext}`);
-        formData.append('language', langCode);
+        waveformBar.style.display = 'flex';
+        voiceLiveBanner.style.display = 'flex';
+        liveTranscriptDisplay.textContent = "Listening... Speak in " + voiceLangSelect.options[voiceLangSelect.selectedIndex].text;
+        micBtn.classList.add('recording');
 
         try {
-          const resp = await fetch(`/api/merchants/${slug}/voice`, {
-            method: 'POST',
-            body: formData,
-          });
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          analyserNode = audioCtx.createAnalyser();
+          analyserNode.fftSize = 128;
+          const source = audioCtx.createMediaStreamSource(micStream);
+          source.connect(analyserNode);
+          drawWaveform();
+        } catch (e) {}
 
-          if (resp.ok) {
-            const data = await resp.json();
-            const transcript = data.transcript || "";
-            if (transcript) {
-              promptInput.value = transcript;
-              voiceLiveTranscript.textContent = transcript;
-              checkSendState();
-              KhojApp.showToast("व्हॉइस नोट यशस्वीरीत्या रेकॉर्ड झाली! / Transcribed!", "success");
-            }
-          } else {
-            console.warn("Voice endpoint responded with error, keeping local input if any.");
-          }
-        } catch (err) {
-          console.warn("Backend voice upload error:", err);
-        }
-      }
-
-      function stopVoice() {
-        isRecording = false;
-        micBtn.classList.remove('recording');
-        voiceAlert.style.display = 'none';
-
-        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-          try { mediaRecorder.stop(); } catch(e) {}
-        }
-        if (micStream) {
-          micStream.getTracks().forEach(track => track.stop());
-          micStream = null;
-        }
-        if (speechRecognition) {
-          try { speechRecognition.stop(); } catch(e) {}
-          speechRecognition = null;
-        }
-      }
-
-      micBtn.addEventListener('click', () => {
-        if (isRecording) stopVoice();
-        else startVoice();
-      });
-      stopVoiceBtn.addEventListener('click', stopVoice);
-
-      // Photo upload
-      photoBtn.addEventListener('click', () => photoFileInput.click());
-      attachBtn.addEventListener('click', () => photoFileInput.click());
-
-      photoFileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          attachedPhoto = { dataUrl: event.target.result, name: file.name };
-          imagePreviewImg.src = attachedPhoto.dataUrl;
-          imagePreviewName.textContent = file.name;
-          imagePreviewBar.style.display = 'flex';
-          checkSendState();
+        const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+        mediaRecorder = mime ? new MediaRecorder(micStream, { mimeType: mime }) : new MediaRecorder(micStream);
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) audioChunks.push(e.data);
         };
-        reader.readAsDataURL(file);
-      });
+        mediaRecorder.start(250);
 
-      removePhotoBtn.addEventListener('click', () => {
-        attachedPhoto = null;
-        imagePreviewBar.style.display = 'none';
-        photoFileInput.value = '';
-        checkSendState();
-      });
-
-      window.addEventListener('languageChanged', () => {
-        if (currentUser) {
-          workspaceGreeting.textContent = `${KhojLanguage.t('greetingHello')} ${currentUser.name}!`;
+        recognition = initSpeechRecognition();
+        if (recognition) {
+          try { recognition.start(); } catch(e) {}
         }
-      });
+      } catch (err) {
+        showToast("Please allow microphone permissions.");
+      }
+    }
+
+    function drawWaveform() {
+      if (!isRecording || !waveformCanvas) return;
+      const ctx = waveformCanvas.getContext('2d');
+      const width = waveformCanvas.width;
+      const height = waveformCanvas.height;
+      const bufferLength = analyserNode ? analyserNode.frequencyBinCount : 32;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function renderFrame() {
+        if (!isRecording) return;
+        animFrameId = requestAnimationFrame(renderFrame);
+
+        if (analyserNode) analyserNode.getByteFrequencyData(dataArray);
+        ctx.clearRect(0, 0, width, height);
+
+        const totalBars = 42;
+        const barWidth = 3;
+        const totalBarSpace = width / totalBars;
+        const centerY = height / 2;
+
+        for (let i = 0; i < totalBars; i++) {
+          const sampleIndex = Math.floor((i / totalBars) * (bufferLength / 2));
+          const val = dataArray[sampleIndex] || 0;
+          const barHeight = Math.max(4, (val / 255) * 26);
+          const x = i * totalBarSpace + (totalBarSpace - barWidth) / 2;
+          const y = centerY - barHeight / 2;
+
+          ctx.fillStyle = val > 45 ? '#FFFFFF' : 'rgba(255, 255, 255, 0.28)';
+          ctx.beginPath();
+          ctx.roundRect(x, y, barWidth, barHeight, 2);
+          ctx.fill();
+        }
+      }
+      renderFrame();
+    }
+
+    async function stopVoiceRecording(autoSend = false) {
+      if (!isRecording) return;
+      isRecording = false;
+
+      const clientSpeech = (finalSpokenText + interimSpokenText).trim();
+      if (clientSpeech) {
+        promptInput.value = clientSpeech;
+      }
+
+      showToast("Transcribing voice via Sarvam AI...");
+
+      // Stop recorder and await final audio blob
+      let blob = null;
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        const blobPromise = new Promise(resolve => {
+          mediaRecorder.onstop = () => {
+            if (audioChunks.length > 0) {
+              resolve(new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' }));
+            } else {
+              resolve(null);
+            }
+          };
+        });
+        try { 
+          if (mediaRecorder.state === 'recording') {
+            mediaRecorder.requestData();
+          }
+          mediaRecorder.stop(); 
+        } catch(e) {}
+        blob = await blobPromise;
+      }
+
+      cleanupRecording();
+
+      // Send to Sarvam AI backend
+      let finalTranscript = clientSpeech;
+      if (blob) {
+        const sarvamResult = await syncBackendAudio(blob, clientSpeech);
+        if (sarvamResult && sarvamResult.transcript) {
+          finalTranscript = sarvamResult.transcript;
+          promptInput.value = finalTranscript;
+          if (autoSend) {
+            appendUserMessage(finalTranscript);
+            renderAgentResponse(sarvamResult);
+            return;
+          }
+        }
+      }
+
+      if (finalTranscript) {
+        promptInput.value = finalTranscript;
+        showToast(`Heard: "${finalTranscript.slice(0, 35)}..."`);
+        if (autoSend) {
+          sendMessage(finalTranscript);
+        } else {
+          promptInput.focus();
+        }
+      } else {
+        showToast("No speech detected. Please speak closer to microphone.");
+      }
+    }
+
+    function cleanupRecording() {
+      isRecording = false;
+      micBtn.classList.remove('recording');
+      waveformBar.style.display = 'none';
+      voiceLiveBanner.style.display = 'none';
+
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+      if (recognition) {
+        try { recognition.stop(); } catch(e) {}
+        recognition = null;
+      }
+      if (micStream) {
+        micStream.getTracks().forEach(t => t.stop());
+        micStream = null;
+      }
+      if (audioCtx) {
+        try { audioCtx.close(); } catch(e) {}
+        audioCtx = null;
+      }
+    }
+
+    async function syncBackendAudio(blob, recognizedSpeech) {
+      const fd = new FormData();
+      fd.append('file', blob, 'voice.webm');
+      fd.append('language', voiceLangSelect.value || 'mr-IN');
+      if (recognizedSpeech) {
+        fd.append('client_transcript', recognizedSpeech);
+      }
+      try {
+        const resp = await fetch(`/api/merchants/${currentMerchantSlug}/voice`, { method: 'POST', body: fd });
+        if (resp.ok) {
+          return await resp.json();
+        } else {
+          const errData = await resp.json().catch(() => ({}));
+          console.warn("Sarvam transcription endpoint status:", resp.status, errData);
+          if (errData && errData.detail) showToast(errData.detail);
+        }
+      } catch (err) {
+        console.warn("Sarvam transcription error:", err);
+      }
+      return null;
+    }
+
+    // =========================================================================
+    // AGENTIC CHAT CONVERSATION ENGINE (REASONING & BUSINESS SUMMARY)
+    // =========================================================================
+    sendChatBtn.addEventListener('click', () => {
+      const text = promptInput.value.trim();
+      if (!text) {
+        showToast("Please speak or write your message.");
+        promptInput.focus();
+        return;
+      }
+      sendMessage(text);
     });
+
+    promptInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChatBtn.click();
+      }
+    });
+
+    function appendUserMessage(text) {
+      const row = document.createElement('div');
+      row.className = 'chat-message-row user';
+      row.innerHTML = `<div class="chat-bubble-user">${escapeHtml(text)}</div>`;
+      chatStream.appendChild(row);
+      scrollToBottom();
+    }
+
+    function appendAgentThinking() {
+      const row = document.createElement('div');
+      row.className = 'chat-message-row agent';
+      row.id = 'agentThinkingRow';
+      row.innerHTML = `
+        <div class="chat-bubble-agent" style="display: flex; align-items: center; gap: 10px;">
+          <span style="width: 10px; height: 10px; background: #000; border-radius: 50%; animation: pulse-ring 1s infinite;"></span>
+          <span style="font-weight: 600;">🧠 KhojDoot AI is reasoning with Gemini...</span>
+        </div>
+      `;
+      chatStream.appendChild(row);
+      scrollToBottom();
+      return row;
+    }
+
+    async function sendMessage(text) {
+      promptInput.value = '';
+      appendUserMessage(text);
+      const thinkingRow = appendAgentThinking();
+      sendChatBtn.disabled = true;
+
+      try {
+        const resp = await fetch(`/api/merchants/${currentMerchantSlug}/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, language: voiceLangSelect.value || 'te-IN' })
+        });
+
+        if (thinkingRow) thinkingRow.remove();
+
+        if (resp.ok) {
+          const data = await resp.json();
+          renderAgentResponse(data);
+        } else {
+          renderAgentSimpleMessage("I encountered an issue processing your request. Please try again.");
+        }
+      } catch (err) {
+        if (thinkingRow) thinkingRow.remove();
+        console.warn("Chat error:", err);
+        renderAgentSimpleMessage("Network error. Please make sure the local server is running.");
+      } finally {
+        sendChatBtn.disabled = false;
+        scrollToBottom();
+      }
+    }
+
+    function renderAgentSimpleMessage(msg) {
+      const row = document.createElement('div');
+      row.className = 'chat-message-row agent';
+      row.innerHTML = `
+        <div class="chat-bubble-agent">
+          <div class="agent-badge-header">
+            <span class="agent-badge-pill">AI AGENT</span>
+          </div>
+          <p>${escapeHtml(msg)}</p>
+        </div>
+      `;
+      chatStream.appendChild(row);
+      scrollToBottom();
+    }
+
+    function renderAgentResponse(data) {
+      const row = document.createElement('div');
+      row.className = 'chat-message-row agent';
+
+      const info = data.infobin || {};
+      const missing = data.missing_fields || [];
+      const isReady = (data.status === 'ready' || missing.length === 0);
+
+      // Build Agent message content
+      let contentHtml = `
+        <div class="chat-bubble-agent">
+          <div class="agent-badge-header">
+            <span class="agent-badge-pill">AI AGENT</span>
+            <span>Reasoning Status: ${isReady ? '✅ Complete' : '⚠️ Need Info'}</span>
+          </div>
+      `;
+
+      // If missing vital fields, ask clarification question in merchant language
+      if (!isReady && data.clarification_question) {
+        contentHtml += `
+          <div style="font-size: 16px; font-weight: 700; color: #000000; margin-bottom: 12px; line-height: 1.4;">
+            ${escapeHtml(data.clarification_question)}
+          </div>
+        `;
+      }
+
+      // Render the Business Summary Card
+      contentHtml += `
+        <div class="business-summary-card">
+          <div class="summary-card-header">
+            <span>📋 Business Summary (InfoBin)</span>
+            <span style="font-size: 11px; background: #000; color: #fff; padding: 2px 8px; border-radius: 9999px;">Checkpoint 1</span>
+          </div>
+
+          <table class="summary-card-table">
+            <tr>
+              <td class="field-name">🏪 Shop Name</td>
+              <td class="field-val"><strong>${escapeHtml(info.name || 'Not provided')}</strong></td>
+            </tr>
+            <tr>
+              <td class="field-name">🏷️ Category</td>
+              <td class="field-val">${escapeHtml(info.category || 'Local Business')}</td>
+            </tr>
+            <tr>
+              <td class="field-name">📞 Phone / WhatsApp</td>
+              <td class="field-val">${info.phone ? escapeHtml(info.phone) : '<span style="color: #DC2626; font-weight: 700;">⚠️ Missing</span>'}</td>
+            </tr>
+            <tr>
+              <td class="field-name">📍 Location / Address</td>
+              <td class="field-val">${info.location ? escapeHtml(info.location) : '<span style="color: #DC2626; font-weight: 700;">⚠️ Missing</span>'}</td>
+            </tr>
+            <tr>
+              <td class="field-name">🍱 Menu / Offerings</td>
+              <td class="field-val">${renderMenuOrServices(info)}</td>
+            </tr>
+            <tr>
+              <td class="field-name">⏰ Operating Hours</td>
+              <td class="field-val">${escapeHtml(info.hours || 'Standard Hours')}</td>
+            </tr>
+          </table>
+
+          <!-- THE 3 DECISION BUTTONS (ENDPOINT TRIGGER) -->
+          <div class="summary-buttons-container">
+            <button type="button" class="btn-summary-yes" onclick="approveAndBuildWebsite()">
+              ✅ Yes, Approve & Build Website 🚀
+            </button>
+            <button type="button" class="btn-summary-edit" onclick="promptForEdit()">
+              ✏️ Edit Info
+            </button>
+            <button type="button" class="btn-summary-no" onclick="resetChatSummary()">
+              ❌ No / Start Over
+            </button>
+          </div>
+        </div>
+      </div>
+      `;
+
+      row.innerHTML = contentHtml;
+      chatStream.appendChild(row);
+      scrollToBottom();
+
+      if (!isReady) {
+        promptInput.placeholder = "Speak or type the missing information above...";
+        promptInput.focus();
+      }
+    }
+
+    function renderMenuOrServices(info) {
+      if (info.menu && info.menu.length > 0) {
+        return info.menu.map(m => `<span>${escapeHtml(m.item)} ${m.price ? '(₹' + m.price + ')' : ''}</span>`).join(', ');
+      }
+      return escapeHtml(info.services || '<span style="color: #DC2626; font-weight: 700;">⚠️ Missing</span>');
+    }
+
+    // =========================================================================
+    // ENDPOINT: 3-BUTTON ACTIONS
+    // =========================================================================
+
+    // 1. APPROVE & BUILD WEBSITE: THE CRITICAL ENDPOINT TO WEBSITE PREVIEW
+    window.approveAndBuildWebsite = async function() {
+      const approveBtns = document.querySelectorAll('.btn-summary-yes');
+      approveBtns.forEach(b => {
+        b.disabled = true;
+        b.textContent = "Approving Checkpoint 1...";
+      });
+
+      // Append confirmation in chat
+      const row = document.createElement('div');
+      row.className = 'chat-message-row agent';
+      row.innerHTML = `
+        <div class="chat-bubble-agent" style="background: #F0FDF4; border-color: #16A34A;">
+          <div style="font-weight: 800; color: #166534; font-size: 16px; margin-bottom: 6px;">
+            🎉 Business Summary Approved!
+          </div>
+          <p style="font-size: 14px; color: #15803D;">
+            Checkpoint 1 has been validated and recorded. Generating your live website preview now...
+          </p>
+        </div>
+      `;
+      chatStream.appendChild(row);
+      scrollToBottom();
+
+      try {
+        // Step 1: Checkpoint 1 Approval endpoint
+        await fetch(`/api/merchants/${currentMerchantSlug}/checkpoint1/approve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ approved: true })
+        });
+
+        // Step 2: Checkpoint 2 Website Generation endpoint
+        const genResp = await fetch(`/api/website/${currentMerchantSlug}/generate`, { method: 'POST' });
+        const genData = await genResp.json();
+
+        localStorage.setItem('khojdoot_active_slug', currentMerchantSlug);
+        localStorage.setItem('khojdoot_has_approved', 'true');
+
+        // Present Preview Options directly in chat
+        const previewRow = document.createElement('div');
+        previewRow.className = 'chat-message-row agent';
+        previewRow.innerHTML = `
+          <div class="chat-bubble-agent" style="background: #FFFFFF; border: 2px solid #000000; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
+            <div style="font-weight: 800; color: #000000; font-size: 17px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+              🚀 Website Preview Ready!
+            </div>
+            <p style="font-size: 13.5px; color: #333333; margin-bottom: 14px; line-height: 1.4;">
+              Your business website has been generated with its custom Indic design system and mobile Call/WhatsApp touch targets. Choose your preview option:
+            </p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <a href="/editor.html?slug=${currentMerchantSlug}" class="mono-btn-primary" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; padding: 10px 18px; font-weight: 700; border-radius: 8px;">
+                🖥️ Open Live Preview Studio &rarr;
+              </a>
+              <a href="/merchant/${currentMerchantSlug}" target="_blank" class="mono-btn-secondary" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; padding: 10px 18px; font-weight: 600; border-radius: 8px;">
+                🌐 Open Full Page in New Tab ↗
+              </a>
+            </div>
+            <div style="font-size: 11px; color: #777777; margin-top: 10px;">
+              Auto-opening preview in 2 seconds...
+            </div>
+          </div>
+        `;
+        chatStream.appendChild(previewRow);
+        scrollToBottom();
+
+        showToast("Website ready! Preview options displayed.");
+        setTimeout(() => {
+          window.location.href = `/editor.html?slug=${currentMerchantSlug}`;
+        }, 2200);
+
+      } catch (err) {
+        console.warn("Generation error:", err);
+        window.location.href = `/editor.html?slug=${currentMerchantSlug}`;
+      }
+    };
+
+    // 2. EDIT INFO: Stays in chat to refine details
+    window.promptForEdit = function() {
+      renderAgentSimpleMessage("Sure! What would you like to update? (e.g. 'Change phone to 9848012345' or 'Add coffee price ₹20')");
+      promptInput.placeholder = "Speak or type your update...";
+      promptInput.focus();
+    };
+
+    // 3. NO / START OVER
+    window.resetChatSummary = function() {
+      currentMerchantSlug = 'shop-' + Date.now().toString(36);
+      localStorage.setItem('khojdoot_active_slug', currentMerchantSlug);
+      renderAgentSimpleMessage("Cleared! Let's start fresh. Tell me your shop details.");
+      promptInput.value = '';
+      promptInput.placeholder = "Tell KhojDoot about your shop...";
+      promptInput.focus();
+    };
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
   </script>
 </body>
 </html>

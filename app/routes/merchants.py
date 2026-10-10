@@ -55,8 +55,20 @@ def chat_with_merchant(slug: str, chat: ChatInput):
     if not chat.message or not chat.message.strip():
         raise HTTPException(status_code=400, detail="Chat message cannot be empty.")
 
+    # Retrieve existing infobin if any from database
+    existing_infobin = None
+    shop = get_shop_by_slug(slug)
+    if shop:
+        existing_infobin = get_bin(shop["id"], "infobin")
+
     try:
-        result = execute_workflow({"slug": slug, "raw_input": chat.message.strip(), "phase": "checkpoint1"})
+        result = execute_workflow({
+            "slug": slug,
+            "raw_input": chat.message.strip(),
+            "phase": "checkpoint1",
+            "infobin": existing_infobin,
+            "language": getattr(chat, "language", None) or "mr-IN",
+        })
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Workflow processing error: {str(e)}")
 
@@ -69,10 +81,19 @@ def chat_with_merchant(slug: str, chat: ChatInput):
     shop_id = create_or_update_shop(sme_id=f"sme_{slug}", slug=slug, name=name, phone=phone, city=city)
     save_bin(shop_id, "infobin", infobin_data)
 
+    missing_fields = result.get("missing_fields", [])
+    clarification_question = result.get("clarification_question", "")
+    is_valid = result.get("infobin_valid", False)
+
+    status = "ready" if is_valid else "needs_clarification"
+
     return {
-        "status": "success",
-        "checkpoint": "CHECKPOINT_1_AWAITING_APPROVAL",
+        "status": status,
+        "checkpoint": "CHECKPOINT_1_AWAITING_APPROVAL" if is_valid else "CHECKPOINT_1_NEED_CLARIFICATION",
         "slug": slug,
+        "infobin": infobin_data,
+        "missing_fields": missing_fields,
+        "clarification_question": clarification_question,
         "data": result,
     }
 
@@ -80,17 +101,18 @@ def chat_with_merchant(slug: str, chat: ChatInput):
 @router.post("/{slug}/voice")
 async def ingest_merchant_voice(
     slug: str,
-    file: UploadFile = File(..., description="Audio file (.wav or .ogg)"),
+    file: UploadFile = File(..., description="Audio file (.wav, .ogg, .webm, .mp3)"),
     language: Optional[str] = Form("mr-IN", description="Audio language code (default: mr-IN)"),
+    client_transcript: Optional[str] = Form(None, description="Client-side recognized transcript"),
 ):
     """
     Voice Note Ingestion Endpoint.
-    Receives .wav or .ogg regional audio notes, transcribes via Sarvam AI,
-    and runs Checkpoint 1 requirement extraction.
+    Receives regional audio notes, transcribes via Sarvam AI,
+    with client-side speech recognition fallback, and runs Checkpoint 1 requirement extraction.
     """
-    filename = file.filename or "recording.wav"
+    filename = file.filename or "recording.webm"
     ext = os.path.splitext(filename)[1].lower()
-    allowed_extensions = {".wav", ".ogg", ".mp3", ".m4a"}
+    allowed_extensions = {".wav", ".ogg", ".mp3", ".m4a", ".webm", ".aac"}
 
     if ext not in allowed_extensions:
         raise HTTPException(
@@ -111,10 +133,16 @@ async def ingest_merchant_voice(
         raise HTTPException(status_code=500, detail=f"Failed to save audio file: {str(e)}")
 
     # Transcribe audio via Sarvam Saaras API
+    transcript = ""
     try:
         transcript = await transcribe_audio(filepath, language_code=language or "mr-IN")
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Audio transcription service failed: {str(e)}")
+        print(f"[Sarvam] Transcription service notice: {e}")
+
+    # Fallback to client-side real-time transcript if Sarvam is unconfigured or returned fallback text
+    if client_transcript and client_transcript.strip():
+        if not transcript or "घरगुती शुद्ध शाकाहारी" in transcript or transcript.strip() == "घरगुती टिफिन सेवा नाशिक":
+            transcript = client_transcript.strip()
 
     if not transcript or not transcript.strip():
         raise HTTPException(
@@ -122,9 +150,21 @@ async def ingest_merchant_voice(
             detail="Transcription returned empty text. Please record a clearer voice note.",
         )
 
-    # Run Checkpoint 1 extraction workflow
+    # Retrieve existing infobin if any from database
+    existing_infobin = None
+    shop = get_shop_by_slug(slug)
+    if shop:
+        existing_infobin = get_bin(shop["id"], "infobin")
+
+    # Run Checkpoint 1 extraction workflow with Gemini reasoning
     try:
-        result = execute_workflow({"slug": slug, "raw_input": transcript.strip(), "phase": "checkpoint1"})
+        result = execute_workflow({
+            "slug": slug,
+            "raw_input": transcript.strip(),
+            "phase": "checkpoint1",
+            "infobin": existing_infobin,
+            "language": language or "mr-IN",
+        })
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Workflow processing error: {str(e)}")
 
@@ -137,12 +177,20 @@ async def ingest_merchant_voice(
     shop_id = create_or_update_shop(sme_id=f"sme_{slug}", slug=slug, name=name, phone=phone, city=city)
     save_bin(shop_id, "infobin", infobin_data)
 
+    missing_fields = result.get("missing_fields", [])
+    clarification_question = result.get("clarification_question", "")
+    is_valid = result.get("infobin_valid", False)
+    status = "ready" if is_valid else "needs_clarification"
+
     return {
-        "status": "success",
-        "checkpoint": "CHECKPOINT_1_AWAITING_APPROVAL",
+        "status": status,
+        "checkpoint": "CHECKPOINT_1_AWAITING_APPROVAL" if is_valid else "CHECKPOINT_1_NEED_CLARIFICATION",
         "slug": slug,
         "audio_file": safe_filename,
         "transcript": transcript,
+        "infobin": infobin_data,
+        "missing_fields": missing_fields,
+        "clarification_question": clarification_question,
         "data": result,
     }
 

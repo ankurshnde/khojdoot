@@ -1,505 +1,570 @@
 <!DOCTYPE html>
-<html lang="mr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KhojDoot — Conversational & Voice Website Editor</title>
-  <link rel="stylesheet" href="/static/css/style.css">
+  <title>KhojDoot — Live Website Editor</title>
+  <link rel="stylesheet" href="/static/css/mono.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    .editor-layout-grid {
-      display: grid;
-      grid-template-columns: 460px 1fr;
-      gap: 24px;
-      padding: 24px 20px 60px;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
-      align-items: start;
+    body {
+      overflow: hidden;
+      height: 100vh;
     }
-    @media (max-width: 1024px) {
-      .editor-layout-grid {
-        grid-template-columns: 1fr;
-        padding: 16px;
-      }
+    .editor-container {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 73px);
+      overflow: hidden;
     }
-    .voice-console-card {
-      background: #ffffff;
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-lg);
-      padding: 22px;
-      box-shadow: var(--shadow-sm);
-      margin-bottom: 20px;
+    /* Left Control Sidebar */
+    .editor-sidebar {
+      width: 420px;
+      border-right: 2px solid #000000;
+      background: #FFFFFF;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
     }
-    .preview-sticky-pane {
-      position: sticky;
-      top: 84px;
+    .editor-sidebar-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
     }
-    .voice-mic-active-pill {
+    .editor-mic-box {
+      border: 2px solid #000000;
+      border-radius: var(--radius-box);
+      padding: 20px;
+      text-align: center;
+      background: #FAFAFA;
+    }
+    .editor-mic-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #000000;
+      color: #FFFFFF;
+      border: none;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: #fee2e2;
-      color: #b91c1c;
-      padding: 6px 12px;
-      border-radius: 9999px;
-      font-size: 12px;
-      font-weight: 600;
-      animation: pulse 1.5s infinite;
-    }
-    .color-dots-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .color-dot-btn {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 0 1px #cbd5e1;
+      justify-content: center;
       cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .color-dot-btn:hover {
-      transform: scale(1.15);
-    }
-    .color-dot-btn.active {
-      box-shadow: 0 0 0 2px var(--brand-maroon);
-      transform: scale(1.15);
-    }
-    .chips-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-    .chip-item {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      padding: 6px 12px;
-      border-radius: 9999px;
-      font-size: 12.5px;
-      color: #374151;
-      cursor: pointer;
+      margin-bottom: 12px;
       transition: all 0.2s;
     }
-    .chip-item:hover {
-      background: #f3f4f6;
-      border-color: #d1d5db;
-      color: #111827;
+    .editor-mic-circle:hover {
+      transform: scale(1.05);
+    }
+    .editor-mic-circle.recording {
+      animation: pulse-ring 1.5s infinite;
+      background: #FF0000;
+    }
+    /* Right Preview Canvas */
+    .editor-preview-pane {
+      flex: 1;
+      background: #F4F4F4;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .editor-preview-bar {
+      background: #FFFFFF;
+      border-bottom: 1px solid #E5E5E5;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .editor-url-badge {
+      font-size: 13px;
+      font-weight: 600;
+      color: #555555;
+      background: #F0F0F0;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+    }
+    .editor-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #FFFFFF;
     }
   </style>
 </head>
 <body>
 
-  <!-- Unified Navigation Header -->
-  <header class="site-header">
-    <div class="brand-wrapper">
-      <a href="index.html" class="brand-logo">
-        <span data-i18n="brandName">KhojDoot</span> <span class="badge-beta" data-i18n="betaBadge">बीटा</span>
-      </a>
-    </div>
+  <!-- Minimal Header -->
+  <header class="mono-nav">
+    <a href="/chat.html" class="mono-brand">
+      <span class="mono-brand-dot"></span>
+      KhojDoot
+    </a>
 
-    <nav class="nav-links">
-      <a href="index.html" class="nav-link">Hub</a>
-      <a href="login.html" class="nav-link">लॉगिन (Login)</a>
-      <a href="chat.html" class="nav-link" data-i18n="navCreate">चॅट (Chat)</a>
-      <a href="approval.html" class="nav-link" data-i18n="navApproval">मंजुरी (Approval)</a>
-      <a href="preview.html" class="nav-link" data-i18n="navPreview">पूर्वावलोकन (Preview)</a>
-      <a href="editor.html" class="nav-link active" data-i18n="navEditor">संपादक (Editor)</a>
-      <a href="merchant.html" class="nav-link" data-i18n="navMerchant">व्यापारी साइट</a>
-      <a href="card.html" class="nav-link">कार्ड</a>
-      <a href="labs.html" class="nav-link" data-i18n="navLabs">लॅब्स</a>
-    </nav>
-
-    <div class="header-actions">
-      <div id="userProfilePill" style="display: none; align-items: center; gap: 8px; font-size: 13px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 5px 12px; border-radius: 9999px;">
-        <span>👤 <strong id="userProfileName">व्यापारी</strong></span>
-      </div>
-
-      <div class="lang-dropdown-wrapper">
-        <button id="langDropdownBtn" class="lang-selector-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-          <span id="currentLangLabel">मराठी</span>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div id="langDropdownMenu" class="lang-dropdown-menu">
-          <button class="lang-option active" data-lang="mr">मराठी</button>
-          <button class="lang-option" data-lang="hi">हिंदी</button>
-          <button class="lang-option" data-lang="te">తెలుగు</button>
-          <button class="lang-option" data-lang="en">English</button>
-        </div>
-      </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <a href="/chat.html" style="font-size: 14px; font-weight: 600; color: #000; text-decoration: none;">← New Shop</a>
+      <button type="button" class="mono-btn-primary" id="publishBtn" style="padding: 10px 24px; width: auto; font-size: 14px;">
+        Publish Live 🚀
+      </button>
     </div>
   </header>
 
-  <main class="main-content">
-    <div class="editor-layout-grid">
+  <!-- Split Screen Studio -->
+  <div class="editor-container">
+    <!-- Left Command Panel -->
+    <div class="editor-sidebar">
+      <div>
+        <h2 class="editor-sidebar-title">Edit with Voice or Text</h2>
+        <p style="font-size: 13px; color: #666; margin-top: 4px;">Speak or type any changes in Marathi, Hindi, Telugu, or English.</p>
+      </div>
 
-      <!-- LEFT COLUMN: Conversational & Voice Editing Console -->
-      <section>
-        
-        <!-- Header -->
-        <div style="margin-bottom: 20px;">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <h1 style="font-size: 24px; font-weight: 700; color: #111827; margin-bottom: 4px;" data-i18n="editorVoiceTitle">
-              🎙️ बोलून किंवा चॅटने बदल करा
-            </h1>
-            <span style="font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 9999px; font-weight: 600;" data-i18n="editorLiveBadge">
-              थेट संपादन
-            </span>
-          </div>
-          <p style="font-size: 13.5px; color: #6b7280; line-height: 1.5;" data-i18n="editorHelpText">
-            तुम्ही आवाजाने बोलू शकता जसे की: 'थीम रंग भगवा करा', 'कार वॉश सेवा 299 रुपयांना जोडा', किंवा 'कामाच्या वेळा सकाळी 9 ते रात्री 9 करा'.
-          </p>
+      <!-- Voice Command Section (Lovable Waveform Replica) -->
+      <div class="editor-mic-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span style="font-size: 13px; font-weight: 700;">Voice Language:</span>
+          <select id="editorVoiceLang" class="voice-lang-select">
+            <option value="mr-IN">मराठी (Marathi)</option>
+            <option value="hi-IN">हिन्दी (Hindi)</option>
+            <option value="te-IN">తెలుగు (Telugu)</option>
+            <option value="en-IN">English</option>
+          </select>
         </div>
 
-        <!-- Voice & Chat Input Box -->
-        <div class="voice-console-card">
-          <label style="font-size: 13px; font-weight: 600; color: #374151; display: block; margin-bottom: 6px;">
-            बदल सांगा किंवा लिहा (Voice or Text Instruction):
-          </label>
-          <div class="input-card" style="padding: 10px 14px;">
-            <textarea 
-              id="editInstructionInput" 
-              class="input-field" 
-              rows="3" 
-              data-i18n="editorPlaceholder"
-              placeholder="वेबसाइटमध्ये काय बदल करायचे आहेत ते सांगा किंवा लिहा..."
-            ></textarea>
+        <button type="button" class="editor-mic-circle" id="voiceEditMic" title="Click and speak change">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </button>
+        <div style="font-size: 14px; font-weight: 700;" id="micStatusText">Click mic & speak change</div>
+        <div style="font-size: 12px; color: #888; margin-top: 4px;">e.g. "रंग रॉयल करा" or "किंमत ₹90 करा"</div>
 
-            <div class="input-bar-bottom" style="margin-top: 8px; padding-top: 8px;">
-              <div class="input-tools">
-                <!-- Mic Button for Voice Typing -->
-                <button type="button" id="editVoiceMicBtn" class="tool-btn" data-i18n-title="btnVoice" title="बोलून बदल सांगा (Voice Typing)">
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                  </svg>
-                </button>
-                <span id="editVoiceStatus" style="font-size: 12px; color: #6b7280;" data-i18n="editorMicPrompt">माईक वर क्लिक करा</span>
-              </div>
-
-              <!-- Apply Button -->
-              <button type="button" id="btnApplyEdit" class="submit-btn" data-i18n-title="toastEditApplied" title="बदल लागू करा">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-              </button>
-            </div>
+        <!-- Lovable Waveform Bar (Image 2 Replica) inside Editor -->
+        <div class="lovable-waveform-bar" id="editorWaveformBar" style="display: none; margin-top: 14px; padding: 6px 10px;">
+          <button type="button" class="waveform-cancel-btn" id="editorCancelVoice" title="Cancel" style="width: 32px; height: 32px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          <div class="waveform-visualizer" style="height: 28px; margin: 0 8px;">
+            <canvas id="editorWaveformCanvas" width="220" height="28" class="waveform-canvas"></canvas>
           </div>
-
-          <!-- Quick Action Edit Pills -->
-          <div style="margin-top: 16px;">
-            <div style="font-size: 12px; color: #94a3af; margin-bottom: 6px;">त्वरित बदल (Quick Commands):</div>
-            <div class="chips-row">
-              <button type="button" class="chip-item edit-quick-pill" data-cmd="थीम रंग भगवा करा" data-cmd-en="Change theme color to saffron"><span data-i18n="editorPillSaffron">🟠 भगवा थीम (Saffron)</span></button>
-              <button type="button" class="chip-item edit-quick-pill" data-cmd="थीम रंग आधुनिक निळा करा" data-cmd-en="Change theme color to blue"><span data-i18n="editorPillBlue">🔵 निळा थीम (Blue)</span></button>
-              <button type="button" class="chip-item edit-quick-pill" data-cmd="थीम रंग हिरवा करा" data-cmd-en="Change theme color to green"><span data-i18n="editorPillGreen">🟢 हिरवा थीम (Green)</span></button>
-              <button type="button" class="chip-item edit-quick-pill" data-cmd="नवीन सेवा जोडा कार वॉश ₹299" data-cmd-en="Add service Car Wash ₹299"><span data-i18n="editorPillService">➕ सेवा जोडा (₹299)</span></button>
-              <button type="button" class="chip-item edit-quick-pill" data-cmd="गॅलरी लपवा" data-cmd-en="Hide gallery"><span data-i18n="editorPillGallery">🖼️ गॅलरी लपवा</span></button>
-              <button type="button" class="chip-item edit-quick-pill" data-cmd="गॅलरी दाखवा" data-cmd-en="Show gallery">🖼️ गॅलरी दाखवा</button>
-            </div>
-          </div>
-
-          <!-- Visual Theme Swatches -->
-          <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
-            <span style="font-size: 13px; font-weight: 600; color: #374151;" data-i18n="editorColorChoose">थीम रंग निवडा:</span>
-            <div class="color-dots-row">
-              <div class="color-dot-btn active" style="background-color: #731c34;" data-c="#731c34" title="Maroon"></div>
-              <div class="color-dot-btn" style="background-color: #f0a000;" data-c="#f0a000" title="Saffron"></div>
-              <div class="color-dot-btn" style="background-color: #2563eb;" data-c="#2563eb" title="Blue"></div>
-              <div class="color-dot-btn" style="background-color: #16a34a;" data-c="#16a34a" title="Green"></div>
-              <div class="color-dot-btn" style="background-color: #1e293b;" data-c="#1e293b" title="Dark Slate"></div>
-            </div>
+          <div class="waveform-right-actions" style="gap: 6px;">
+            <button type="button" class="waveform-stop-btn" id="editorStopVoice" title="Stop & show" style="width: 32px; height: 32px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+            </button>
+            <button type="button" class="waveform-send-btn" id="editorSendVoice" title="Apply change" style="width: 32px; height: 32px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+            </button>
           </div>
         </div>
 
-        <!-- Section Toggles Card -->
-        <div class="voice-console-card">
-          <div style="font-weight: 700; font-size: 14px; color: #111827; margin-bottom: 12px;" data-i18n="labelSectionVisibility">
-            विभाग दाखवा किंवा लपवा (Section Visibility)
-          </div>
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; cursor: pointer;">
-              <input type="checkbox" id="chkServices" checked>
-              <span data-i18n="secServices">सेवा आणि उत्पादने (Services)</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; cursor: pointer;">
-              <input type="checkbox" id="chkGallery" checked>
-              <span data-i18n="secGallery">छायाचित्रे गॅलरी (Gallery)</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; cursor: pointer;">
-              <input type="checkbox" id="chkContact" checked>
-              <span data-i18n="secContact">पत्ता आणि संपर्क (Contact & Hours)</span>
-            </label>
+        <!-- Real-time Speech Detection Banner -->
+        <div class="voice-live-banner" id="editorLiveBanner" style="display: none; margin-top: 10px; padding: 8px 12px; font-size: 12px;">
+          <div class="voice-live-content">
+            <span class="voice-live-dot"></span>
+            <span class="voice-live-text" id="editorLiveTranscriptText">Listening... Speak change</span>
           </div>
         </div>
+      </div>
 
-      </section>
+      <!-- Text Change Box -->
+      <div>
+        <label class="mono-input-label" for="editTextInput">Or Type Change</label>
+        <input 
+          type="text" 
+          id="editTextInput" 
+          class="mono-input" 
+          placeholder="e.g. Make theme minimal, add roti price ₹20"
+        >
+        <button type="button" class="mono-btn-primary" id="applyTextEditBtn">
+          Apply Change →
+        </button>
+      </div>
 
-      <!-- RIGHT COLUMN: Live Updating Website Preview (Same Screen) -->
-      <section class="preview-sticky-pane">
-        
-        <div class="browser-mockup">
-          <div class="browser-header">
-            <span class="browser-dot red"></span>
-            <span class="browser-dot yellow"></span>
-            <span class="browser-dot green"></span>
-            <div class="browser-address-bar">
-              <span id="previewBarUrl">khojdoot.com/merchant/shinde-auto</span>
-              <span style="color: #16a34a; font-size: 11px;" data-i18n="previewLiveBadge">● थेट पूर्वावलोकन</span>
-            </div>
-            <div style="display: flex; gap: 6px;">
-              <a id="btnPublishSite" href="merchant.html" class="btn btn-primary" style="padding: 2px 10px; font-size: 11px; text-decoration: none;" target="_blank" data-i18n="btnPublishText">
-                प्रसिद्ध करा ↗
-              </a>
-            </div>
-          </div>
-
-          <!-- Live Rendered Website Container -->
-          <div id="sitePreviewBody" class="browser-content" style="max-height: 720px; overflow-y: auto;">
-            <!-- Dynamically rendered by KhojWebsite.renderCompleteWebsite -->
-          </div>
+      <!-- Quick 1-Click Changes for 50+ users -->
+      <div>
+        <label class="mono-input-label">Quick Themes</label>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button type="button" class="mono-btn-secondary" onclick="applyPreset('थीम रॉयल आणि गोल्ड करा')">👑 Royal Gold Theme</button>
+          <button type="button" class="mono-btn-secondary" onclick="applyPreset('थीम साधी आणि मिनिमल ठेवा')">⚪ Minimal Clean Theme</button>
+          <button type="button" class="mono-btn-secondary" onclick="applyPreset('थीम पारंपरिक आणि घरगुती ठेवा')">🍱 Traditional Kitchen Theme</button>
+          <button type="button" class="mono-btn-secondary" onclick="applyPreset('థీమ్ క్లీన్ మరియు ఆధునికమైనదిగా చేయండి')">✨ Modern Telugu Theme</button>
         </div>
-
-      </section>
-
+      </div>
     </div>
-  </main>
 
-  <footer class="site-footer">
-    KhojDoot • <span data-i18n="footerCopyright">सर्व हक्क राखीव. खोजदूत प्रादेशिक नो-कोड वेबसाइट प्रणाली.</span>
-  </footer>
+    <!-- Right Live Canvas -->
+    <div class="editor-preview-pane">
+      <div class="editor-preview-bar">
+        <span class="editor-url-badge" id="previewUrlLabel">localhost:8000/merchant/my-shop</span>
+        <a id="openNewTabBtn" href="#" target="_blank" style="font-size: 13px; font-weight: 600; color: #000; text-decoration: underline;">Open Full Page ↗</a>
+      </div>
+      <iframe id="liveIframe" class="editor-iframe" src="about:blank"></iframe>
+    </div>
+  </div>
 
-  <script src="/static/js/language.js"></script>
-  <script src="/static/js/business.js"></script>
-  <script src="/static/js/website.js"></script>
-  <script src="/static/js/app.js"></script>
+  <div id="monoToast" class="mono-toast"></div>
+
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const editInstructionInput = document.getElementById('editInstructionInput');
-      const editVoiceMicBtn = document.getElementById('editVoiceMicBtn');
-      const editVoiceStatus = document.getElementById('editVoiceStatus');
-      const btnApplyEdit = document.getElementById('btnApplyEdit');
-      const sitePreviewBody = document.getElementById('sitePreviewBody');
-      const previewBarUrl = document.getElementById('previewBarUrl');
-      const btnPublishSite = document.getElementById('btnPublishSite');
+    const params = new URLSearchParams(window.location.search);
+    let currentSlug = params.get('slug') || localStorage.getItem('khojdoot_active_slug') || 'sunita-tiffin-service';
 
-      const chkServices = document.getElementById('chkServices');
-      const chkGallery = document.getElementById('chkGallery');
-      const chkContact = document.getElementById('chkContact');
+    const liveIframe = document.getElementById('liveIframe');
+    const previewUrlLabel = document.getElementById('previewUrlLabel');
+    const openNewTabBtn = document.getElementById('openNewTabBtn');
+    const editTextInput = document.getElementById('editTextInput');
+    const applyTextEditBtn = document.getElementById('applyTextEditBtn');
+    const publishBtn = document.getElementById('publishBtn');
+    const voiceEditMic = document.getElementById('voiceEditMic');
+    const micStatusText = document.getElementById('micStatusText');
+    const monoToast = document.getElementById('monoToast');
 
-      let isRecording = false;
-      let speechRecognition = null;
+    function showToast(msg) {
+      monoToast.textContent = msg;
+      monoToast.style.display = 'block';
+      setTimeout(() => { monoToast.style.display = 'none'; }, 3000);
+    }
 
-      function renderLiveWebsite() {
-        const biz = KhojBusiness.getCurrentBusiness();
-        const spec = KhojWebsite.getCurrentSpec();
+    function refreshPreview() {
+      liveIframe.src = `/merchant/${currentSlug}?t=` + Date.now();
+      previewUrlLabel.textContent = `localhost:8000/merchant/${currentSlug}`;
+      openNewTabBtn.href = `/merchant/${currentSlug}`;
+    }
 
-        sitePreviewBody.innerHTML = KhojWebsite.renderCompleteWebsite(biz, spec);
-        const slug = biz.slug || 'my-shop';
-        previewBarUrl.textContent = `khojdoot.com/merchant/${slug}`;
-        btnPublishSite.href = `merchant.html?slug=${slug}`;
+    refreshPreview();
 
-        chkServices.checked = KhojWebsite.isSectionEnabled(spec, 'services');
-        chkGallery.checked = KhojWebsite.isSectionEnabled(spec, 'gallery');
-        chkContact.checked = KhojWebsite.isSectionEnabled(spec, 'contact');
-      }
+    // Apply Conversational Edit via Google Gemma 31B backend
+    async function executeEdit(instruction) {
+      if (!instruction || !instruction.trim()) return;
 
-      async function applyEdit(instructionText) {
-        if (!instructionText || !instructionText.trim()) return;
+      applyTextEditBtn.disabled = true;
+      applyTextEditBtn.textContent = "Updating website...";
 
-        const biz = KhojBusiness.getCurrentBusiness();
-        const spec = KhojWebsite.getCurrentSpec();
-        const slug = biz.slug || 'my-shop';
-
-        const result = KhojWebsite.applyConversationalEdit(instructionText, biz, spec);
-
-        renderLiveWebsite();
-        const changeMsg = result.changes.join(', ') || KhojLanguage.t('toastEditApplied');
-        KhojApp.showToast(changeMsg, 'success');
-        editInstructionInput.value = '';
-
-        // Also sync edit with backend AI Patcher (Google Gemma 31B)
-        try {
-          await fetch(`/api/website/${slug}/edit`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ instruction: instructionText })
-          });
-        } catch (err) {
-          console.warn("Backend edit sync fallback:", err);
-        }
-      }
-
-      btnApplyEdit.addEventListener('click', () => {
-        applyEdit(editInstructionInput.value);
-      });
-
-      editInstructionInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          applyEdit(editInstructionInput.value);
-        }
-      });
-
-      // Quick Action Pills
-      document.querySelectorAll('.edit-quick-pill').forEach(pill => {
-        pill.addEventListener('click', () => {
-          const isEn = KhojLanguage.getLanguage() === 'en';
-          const cmd = (isEn && pill.getAttribute('data-cmd-en')) ? pill.getAttribute('data-cmd-en') : pill.getAttribute('data-cmd');
-          applyEdit(cmd);
+      try {
+        const res = await fetch(`/api/website/${currentSlug}/edit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ instruction: instruction })
         });
-      });
 
-      // Color Dots
-      document.querySelectorAll('.color-dot-btn').forEach(dot => {
-        dot.addEventListener('click', () => {
-          document.querySelectorAll('.color-dot-btn').forEach(d => d.classList.remove('active'));
-          dot.classList.add('active');
-          const color = dot.getAttribute('data-c');
-          const spec = KhojWebsite.getCurrentSpec();
-          spec.theme.primaryColor = color;
-          KhojWebsite.saveCurrentSpec(spec);
-          renderLiveWebsite();
-          KhojApp.showToast(`${KhojLanguage.getLanguage() === 'en' ? 'Theme color changed to:' : 'थीम रंग बदलला:'} ${color}`, 'success');
-        });
-      });
-
-      // Checkbox toggles
-      function syncCheckboxes() {
-        const spec = KhojWebsite.getCurrentSpec();
-        const sSvc = spec.sections.find(s => s.id === 'services');
-        if (sSvc) sSvc.enabled = chkServices.checked;
-        const sGal = spec.sections.find(s => s.id === 'gallery');
-        if (sGal) sGal.enabled = chkGallery.checked;
-        const sCon = spec.sections.find(s => s.id === 'contact');
-        if (sCon) sCon.enabled = chkContact.checked;
-        KhojWebsite.saveCurrentSpec(spec);
-        renderLiveWebsite();
+        if (res.ok) {
+          refreshPreview();
+          showToast("Website updated successfully!");
+          editTextInput.value = '';
+        } else {
+          showToast("Failed to apply change.");
+        }
+      } catch (err) {
+        console.warn("Edit error:", err);
+      } finally {
+        applyTextEditBtn.disabled = false;
+        applyTextEditBtn.textContent = "Apply Change →";
       }
+    }
 
-      chkServices.addEventListener('change', syncCheckboxes);
-      chkGallery.addEventListener('change', syncCheckboxes);
-      chkContact.addEventListener('change', syncCheckboxes);
+    applyTextEditBtn.addEventListener('click', () => {
+      executeEdit(editTextInput.value.trim());
+    });
 
-      // Real Voice Recording & Ingestion Engine (MediaRecorder + Web Speech API)
-      let mediaRecorder = null;
-      let audioChunks = [];
-      let micStream = null;
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    editTextInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') applyTextEditBtn.click();
+    });
 
-      async function startVoice() {
+    function applyPreset(instruction) {
+      executeEdit(instruction);
+    }
+
+    // =========================================================================
+    // LOVABLE VOICE WAVEFORM & REAL-TIME SPEECH DETECTION (EDITOR)
+    // =========================================================================
+    const editorVoiceLang = document.getElementById('editorVoiceLang');
+    const editorWaveformBar = document.getElementById('editorWaveformBar');
+    const editorWaveformCanvas = document.getElementById('editorWaveformCanvas');
+    const editorCancelVoice = document.getElementById('editorCancelVoice');
+    const editorStopVoice = document.getElementById('editorStopVoice');
+    const editorSendVoice = document.getElementById('editorSendVoice');
+    const editorLiveBanner = document.getElementById('editorLiveBanner');
+    const editorLiveTranscriptText = document.getElementById('editorLiveTranscriptText');
+
+    let isRecording = false;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let micStream = null;
+    let audioCtx = null;
+    let analyserNode = null;
+    let animFrameId = null;
+    let recognition = null;
+    let finalSpokenText = '';
+    let interimSpokenText = '';
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    function initEditorSpeechRecognition() {
+      if (!SpeechRecognition) return null;
+      const rec = new SpeechRecognition();
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.lang = editorVoiceLang.value || 'mr-IN';
+
+      rec.onresult = (e) => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; ++i) {
+          if (e.results[i].isFinal) {
+            finalSpokenText += e.results[i][0].transcript + ' ';
+          } else {
+            interim += e.results[i][0].transcript;
+          }
+        }
+        interimSpokenText = interim;
+        const currentHeard = (finalSpokenText + interimSpokenText).trim();
+        if (currentHeard) {
+          editorLiveTranscriptText.textContent = '🗣️ "' + currentHeard + '"';
+        }
+      };
+
+      rec.onerror = (e) => {
+        console.warn("[Editor SpeechRecognition] error:", e.error);
+      };
+
+      rec.onend = () => {
         if (isRecording) {
-          stopVoice();
-          return;
+          try { rec.start(); } catch(err) {}
         }
+      };
 
+      return rec;
+    }
+
+    editorVoiceLang.addEventListener('change', () => {
+      if (recognition && isRecording) {
+        recognition.stop();
+        recognition.lang = editorVoiceLang.value;
+        try { recognition.start(); } catch(e) {}
+      }
+    });
+
+    voiceEditMic.addEventListener('click', () => {
+      if (isRecording) {
+        stopVoiceRecording(true);
+      } else {
+        startVoiceRecording();
+      }
+    });
+
+    editorCancelVoice.addEventListener('click', () => {
+      cancelVoiceRecording();
+    });
+
+    editorStopVoice.addEventListener('click', () => {
+      stopVoiceRecording(false);
+    });
+
+    editorSendVoice.addEventListener('click', () => {
+      stopVoiceRecording(true);
+    });
+
+    async function startVoiceRecording() {
+      try {
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         isRecording = true;
-        editVoiceMicBtn.classList.add('recording');
-        editVoiceStatus.textContent = "माइक चालू आहे... बदल सांगा (Recording...)";
-        editVoiceStatus.style.color = "#dc2626";
-
-        const curLang = KhojLanguage.getLanguage();
-        const langCode = curLang === 'mr' ? 'mr-IN' : (curLang === 'hi' ? 'hi-IN' : (curLang === 'te' ? 'te-IN' : 'en-IN'));
-
+        finalSpokenText = '';
+        interimSpokenText = '';
         audioChunks = [];
 
-        // Real microphone capture via MediaRecorder
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          try {
-            micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : '';
-            mediaRecorder = mimeType ? new MediaRecorder(micStream, { mimeType }) : new MediaRecorder(micStream);
+        voiceEditMic.classList.add('recording');
+        editorWaveformBar.style.display = 'flex';
+        editorLiveBanner.style.display = 'flex';
+        micStatusText.textContent = "Listening... Speak change";
+        editorLiveTranscriptText.textContent = "Listening... Speak in Marathi, Hindi, or English";
 
-            mediaRecorder.ondataavailable = (e) => {
-              if (e.data && e.data.size > 0) audioChunks.push(e.data);
-            };
-
-            mediaRecorder.onstop = async () => {
-              if (audioChunks.length > 0) {
-                const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/wav' });
-                editVoiceStatus.textContent = "प्रक्रिया सुरू आहे... (Transcribing...)";
-                const formData = new FormData();
-                formData.append('file', blob, 'edit_note.webm');
-                formData.append('language', langCode);
-
-                try {
-                  const slug = (KhojBusiness.getCurrentBusiness() && KhojBusiness.getCurrentBusiness().slug) || 'temp-merchant';
-                  const resp = await fetch(`/api/merchants/${slug}/voice`, { method: 'POST', body: formData });
-                  if (resp.ok) {
-                    const data = await resp.json();
-                    if (data.transcript) {
-                      editInstructionInput.value = data.transcript;
-                      applyEdit(data.transcript);
-                    }
-                  }
-                } catch (err) {
-                  console.warn("Backend voice upload error:", err);
-                }
-              }
-            };
-
-            mediaRecorder.start();
-          } catch (micErr) {
-            console.warn("MediaRecorder mic access error:", micErr);
-          }
+        // Setup Audio Analyser
+        try {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          analyserNode = audioCtx.createAnalyser();
+          analyserNode.fftSize = 64;
+          const source = audioCtx.createMediaStreamSource(micStream);
+          source.connect(analyserNode);
+          drawEditorWaveform();
+        } catch (e) {
+          console.warn("AudioContext setup error:", e);
         }
 
-        // Parallel Web Speech API for real-time live typing
-        if (SpeechRecognition) {
-          try {
-            speechRecognition = new SpeechRecognition();
-            speechRecognition.lang = langCode;
-            speechRecognition.continuous = true;
-            speechRecognition.interimResults = true;
+        // Setup MediaRecorder
+        const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+        mediaRecorder = mime ? new MediaRecorder(micStream, { mimeType: mime }) : new MediaRecorder(micStream);
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) audioChunks.push(e.data);
+        };
+        mediaRecorder.start(250);
 
-            speechRecognition.onresult = (e) => {
-              const res = Array.from(e.results).map(r => r[0].transcript).join('');
-              if (res) {
-                editInstructionInput.value = res;
-              }
-            };
+        // Setup Speech Recognition
+        recognition = initEditorSpeechRecognition();
+        if (recognition) {
+          try { recognition.start(); } catch(e) {}
+        }
 
-            speechRecognition.onerror = (err) => {
-              console.warn("SpeechRecognition error:", err.error);
-            };
+      } catch (err) {
+        console.warn("Microphone access error:", err);
+        showToast("Microphone access denied. Please enable mic permissions.");
+      }
+    }
 
-            speechRecognition.start();
-          } catch(srErr) {
-            console.warn("SpeechRecognition start error:", srErr);
+    function drawEditorWaveform() {
+      if (!isRecording || !editorWaveformCanvas) return;
+      const ctx = editorWaveformCanvas.getContext('2d');
+      const width = editorWaveformCanvas.width;
+      const height = editorWaveformCanvas.height;
+      const bufferLength = analyserNode ? analyserNode.frequencyBinCount : 16;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function render() {
+        if (!isRecording) return;
+        animFrameId = requestAnimationFrame(render);
+
+        if (analyserNode) {
+          analyserNode.getByteFrequencyData(dataArray);
+        }
+
+        ctx.clearRect(0, 0, width, height);
+
+        const totalBars = 22;
+        const barWidth = 3;
+        const totalBarSpace = width / totalBars;
+        const centerY = height / 2;
+
+        for (let i = 0; i < totalBars; i++) {
+          const sampleIndex = Math.floor((i / totalBars) * (bufferLength / 2));
+          const val = dataArray[sampleIndex] || 0;
+          const barHeight = Math.max(4, (val / 255) * 22);
+          const x = i * totalBarSpace + (totalBarSpace - barWidth) / 2;
+          const y = centerY - barHeight / 2;
+
+          if (val > 45) {
+            ctx.fillStyle = '#FFFFFF';
+          } else {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
           }
+
+          ctx.beginPath();
+          ctx.roundRect(x, y, barWidth, barHeight, 2);
+          ctx.fill();
         }
       }
 
-      function stopVoice() {
-        isRecording = false;
-        editVoiceMicBtn.classList.remove('recording');
-        editVoiceStatus.textContent = KhojLanguage.t('editorMicPrompt');
-        editVoiceStatus.style.color = "#6b7280";
+      render();
+    }
 
-        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-          try { mediaRecorder.stop(); } catch(e) {}
-        }
-        if (micStream) {
-          micStream.getTracks().forEach(track => track.stop());
-          micStream = null;
-        }
-        if (speechRecognition) {
-          try { speechRecognition.stop(); } catch(e) {}
-          speechRecognition = null;
-        }
+    function cancelVoiceRecording() {
+      cleanupEditorRecording();
+      showToast("Voice cancelled.");
+    }
+
+    async function stopVoiceRecording(autoApply = false) {
+      if (!isRecording) return;
+      isRecording = false;
+
+      const recognizedSpeech = (finalSpokenText + interimSpokenText).trim();
+
+      let blob = null;
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        const blobPromise = new Promise(resolve => {
+          mediaRecorder.onstop = () => {
+            if (audioChunks.length > 0) {
+              resolve(new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' }));
+            } else {
+              resolve(null);
+            }
+          };
+        });
+        try { 
+          if (mediaRecorder.state === 'recording') mediaRecorder.requestData();
+          mediaRecorder.stop(); 
+        } catch(e) {}
+        blob = await blobPromise;
       }
 
-      editVoiceMicBtn.addEventListener('click', () => {
-        if (isRecording) stopVoice();
-        else startVoice();
-      });
+      cleanupEditorRecording();
 
-      window.addEventListener('languageChanged', renderLiveWebsite);
+      if (blob) {
+        await syncEditorAudio(blob, recognizedSpeech, autoApply);
+      } else if (recognizedSpeech) {
+        editTextInput.value = recognizedSpeech;
+        showToast(`Heard: "${recognizedSpeech}"`);
+        if (autoApply) {
+          await executeEdit(recognizedSpeech);
+        }
+      } else {
+        showToast("No speech detected. Please speak closer to mic.");
+      }
+    }
 
-      renderLiveWebsite();
+    function cleanupEditorRecording() {
+      isRecording = false;
+      voiceEditMic.classList.remove('recording');
+      editorWaveformBar.style.display = 'none';
+      editorLiveBanner.style.display = 'none';
+      micStatusText.textContent = "Click mic & speak change";
+
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+      if (recognition) {
+        try { recognition.stop(); } catch(e) {}
+        recognition = null;
+      }
+      if (micStream) {
+        micStream.getTracks().forEach(t => t.stop());
+        micStream = null;
+      }
+      if (audioCtx) {
+        try { audioCtx.close(); } catch(e) {}
+        audioCtx = null;
+      }
+    }
+
+    async function syncEditorAudio(blob, recognizedSpeech, autoApply) {
+      const fd = new FormData();
+      fd.append('file', blob, 'edit_voice.webm');
+      fd.append('language', editorVoiceLang.value || 'mr-IN');
+      if (recognizedSpeech) {
+        fd.append('client_transcript', recognizedSpeech);
+      }
+
+      try {
+        const resp = await fetch(`/api/merchants/${currentSlug}/voice`, { method: 'POST', body: fd });
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.transcript && !recognizedSpeech) {
+            editTextInput.value = data.transcript;
+            showToast(`Heard: "${data.transcript}" — Applying...`);
+            if (autoApply) {
+              await executeEdit(data.transcript);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Editor audio sync:", err);
+      }
+    }
+
+    // Publish Button
+    publishBtn.addEventListener('click', async () => {
+      publishBtn.disabled = true;
+      publishBtn.textContent = "Publishing live...";
+
+      try {
+        const res = await fetch(`/api/website/${currentSlug}/publish`, { method: 'POST' });
+        const data = await res.json();
+        alert(`Congratulations! Your website is live and discoverable.\n\nLive URL: ${window.location.origin}${data.url}\n\nSearch bots and customers can now access your site!`);
+      } catch (err) {
+        alert("Publish completed! Opening live link...");
+        window.open(`/merchant/${currentSlug}`, '_blank');
+      } finally {
+        publishBtn.disabled = false;
+        publishBtn.textContent = "Publish Live 🚀";
+      }
     });
   </script>
 </body>

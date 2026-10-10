@@ -32,6 +32,10 @@ def execute_workflow(request_context: Dict[str, Any]) -> Dict[str, Any]:
 
     if edit_instruction:
         state_input["intent"] = "EDIT_REQUEST"
+    if request_context.get("infobin"):
+        state_input["infobin"] = request_context["infobin"]
+    if request_context.get("language"):
+        state_input["language"] = request_context["language"]
 
     # Invoke the compiled LangGraph StateGraph
     final_state = compiled_harness_graph.invoke(state_input, config=config)

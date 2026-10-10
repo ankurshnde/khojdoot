@@ -1,254 +1,200 @@
 <!DOCTYPE html>
-<html lang="mr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KhojDoot — Login & Verification</title>
-  <link rel="stylesheet" href="/static/css/style.css">
-  <style>
-    .login-container {
-      max-width: 460px;
-      margin: 40px auto 60px;
-      padding: 0 16px;
-    }
-    .flow-stepper-mini {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-    .flow-step-tag {
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 9999px;
-      background: #e2e8f0;
-      color: #475569;
-      font-weight: 600;
-    }
-    .flow-step-tag.active {
-      background: var(--brand-maroon);
-      color: #ffffff;
-    }
-  </style>
+  <title>KhojDoot — Login</title>
+  <link rel="stylesheet" href="/static/css/mono.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- Unified Navigation Header -->
-  <header class="site-header">
-    <div class="brand-wrapper">
-      <a href="index.html" class="brand-logo">
-        <span data-i18n="brandName">KhojDoot</span> <span class="badge-beta" data-i18n="betaBadge">बीटा</span>
-      </a>
-    </div>
-
-    <nav class="nav-links">
-      <a href="index.html" class="nav-link">Hub</a>
-      <a href="login.html" class="nav-link active">लॉगिन (Login)</a>
-      <a href="chat.html" class="nav-link" data-i18n="navCreate">चॅट (Chat)</a>
-      <a href="approval.html" class="nav-link" data-i18n="navApproval">मंजुरी (Approval)</a>
-      <a href="preview.html" class="nav-link" data-i18n="navPreview">पूर्वावलोकन (Preview)</a>
-      <a href="editor.html" class="nav-link" data-i18n="navEditor">संपादक (Editor)</a>
-      <a href="merchant.html" class="nav-link" data-i18n="navMerchant">व्यापारी साइट</a>
-      <a href="card.html" class="nav-link">कार्ड</a>
-      <a href="labs.html" class="nav-link" data-i18n="navLabs">लॅब्स</a>
-    </nav>
-
-    <div class="header-actions">
-      <div id="userProfilePill" style="display: none; align-items: center; gap: 8px; font-size: 13px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 5px 12px; border-radius: 9999px;">
-        <span>👤 <strong id="userProfileName">व्यापारी</strong></span>
-      </div>
-
-      <div class="lang-dropdown-wrapper">
-        <button id="langDropdownBtn" class="lang-selector-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-          <span id="currentLangLabel">मराठी</span>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div id="langDropdownMenu" class="lang-dropdown-menu">
-          <button class="lang-option active" data-lang="mr">मराठी</button>
-          <button class="lang-option" data-lang="hi">हिंदी</button>
-          <button class="lang-option" data-lang="te">తెలుగు</button>
-          <button class="lang-option" data-lang="en">English</button>
-        </div>
-      </div>
-    </div>
+  <!-- Minimal Brand Header -->
+  <header class="mono-nav">
+    <a href="/login.html" class="mono-brand">
+      <span class="mono-brand-dot"></span>
+      KhojDoot
+    </a>
   </header>
 
-  <main class="main-content">
-    <div class="login-container">
+  <!-- Centered Minimalist Authentication Card -->
+  <main class="hero-stage">
+    <div class="mono-card" id="phoneCard">
+      <h1 class="mono-card-title">Sign in</h1>
+      <p class="mono-card-desc">Enter your 10-digit mobile number to begin.</p>
 
-      <!-- Breadcrumb indicator -->
-      <div class="flow-stepper-mini">
-        <span class="flow-step-tag active">1. Login</span>
-        <span class="flow-step-tag">2. Chat</span>
-        <span class="flow-step-tag">3. Approval</span>
-        <span class="flow-step-tag">4. Preview & Edit</span>
-      </div>
+      <label class="mono-input-label" for="mobileInput">Mobile Number</label>
+      <input 
+        type="tel" 
+        id="mobileInput" 
+        class="mono-input" 
+        placeholder="9822012345" 
+        maxlength="10" 
+        autofocus 
+        inputmode="numeric"
+      >
 
-      <!-- Login Card -->
-      <div class="login-card-container">
-        <div class="login-header-icon">🔐</div>
-        <h1 class="login-title" data-i18n="loginTitle">खोजदूत मध्ये आपले स्वागत आहे</h1>
-        <p class="login-sub" data-i18n="loginSubtitle">आपल्या व्यवसायाची सुंदर वेबसाइट तयार करण्यासाठी आपले नाव आणि 10 अंकी मोबाइल नंबर प्रविष्ट करा.</p>
+      <button type="button" id="sendOtpBtn" class="mono-btn-primary">
+        Send OTP →
+      </button>
+    </div>
 
-        <!-- Name Input -->
-        <div class="form-field-group">
-          <label class="form-label-clean" for="loginNameInput" data-i18n="labelYourName">आपले नाव (Your Name) *</label>
-          <input type="text" id="loginNameInput" class="text-input-field" data-i18n="placeholderName" placeholder="उदा. राहुल पाटील किंवा सुनिता शिंदे" autocomplete="name">
-        </div>
+    <!-- Step 2: OTP Verification Card (Hidden initially) -->
+    <div class="mono-card" id="otpCard" style="display: none;">
+      <h1 class="mono-card-title">Verify Code</h1>
+      <p class="mono-card-desc">Enter the 6-digit code sent to <strong id="displayPhone"></strong>.</p>
 
-        <!-- Phone Number Input (Strictly 10 digits) -->
-        <div class="form-field-group">
-          <label class="form-label-clean" for="loginPhoneInput" data-i18n="labelMobileNumber">मोबाइल नंबर (10-Digit Mobile Number) *</label>
-          <div class="phone-input-row">
-            <span class="country-code-pill">🇮🇳 +91</span>
-            <input type="tel" id="loginPhoneInput" class="text-input-field" maxlength="10" data-i18n="placeholderPhone" placeholder="10 अंकी मोबाइल नंबर (उदा. 9822012345)" autocomplete="tel">
-          </div>
-          <div id="phoneErrorMsg" style="display: none; color: #dc2626; font-size: 12px; margin-top: 5px;" data-i18n="errPhone10Digits">
-            ⚠️ कृपया बरोबर 10 अंकी मोबाइल नंबर प्रविष्ट करा.
-          </div>
-        </div>
+      <label class="mono-input-label" for="otpInput">One-Time Password</label>
+      <input 
+        type="text" 
+        id="otpInput" 
+        class="mono-input" 
+        placeholder="123456" 
+        maxlength="6" 
+        inputmode="numeric" 
+        value="123456"
+      >
 
-        <!-- Action: Send OTP -->
-        <div id="sendOtpBtnWrap" style="margin-top: 20px;">
-          <button type="button" id="btnSendOtp" class="btn-verify-primary">
-            <span data-i18n="btnSendOtpText">ओटीपी पाठवा (Send OTP) →</span>
-          </button>
-        </div>
+      <button type="button" id="verifyOtpBtn" class="mono-btn-primary">
+        Verify & Continue →
+      </button>
 
-        <!-- Action: OTP Input Block (Revealed when OTP is requested) -->
-        <div id="otpInputBlock" style="display: none;">
-          <div class="otp-box-wrap">
-            <div class="demo-otp-banner">
-              <span>📩</span>
-              <span><span data-i18n="otpSentBanner">ओटीपी तुमच्या नंबरवर पाठवला आहे! डेमो OTP:</span> <strong><span id="demoOtpCode">1234</span></strong></span>
-            </div>
-            <label class="form-label-clean" for="loginOtpInput" style="text-align: center;" data-i18n="labelEnterOtp">4 अंकी ओटीपी टाका (Enter 4-Digit OTP)</label>
-            <input type="text" id="loginOtpInput" class="otp-input-field" maxlength="4" placeholder="••••" autocomplete="one-time-code">
-            <div id="otpErrorMsg" style="display: none; color: #dc2626; font-size: 12px; text-align: center; margin-top: 6px;" data-i18n="errOtpInvalid">
-              ⚠️ अवैध ओटीपी! कृपया बरोबर 4 अंकी कोड प्रविष्ट करा.
-            </div>
-          </div>
-
-          <!-- Button Text STRICTLY Named "Verify" -->
-          <button type="button" id="btnVerifyOtp" class="btn-verify-primary" style="background: #16a34a;">
-            <span data-i18n="btnVerifyText">Verify ✓</span>
-          </button>
-        </div>
-
-        <!-- Connection link to already logged in state -->
-        <div id="alreadyLoggedInMsg" style="display: none; margin-top: 20px; text-align: center; font-size: 13px; color: #16a34a; background: #f0fdf4; padding: 10px; border-radius: 8px;">
-          <span>तुम्ही आधीच लॉगिन केलेले आहात. </span>
-          <a href="chat.html" style="font-weight: 700; color: #166534; text-decoration: underline;">थेट चॅटकडे जा →</a>
-        </div>
-
-      </div>
-
+      <button type="button" id="backToPhoneBtn" class="mono-btn-secondary">
+        Change Mobile Number
+      </button>
     </div>
   </main>
 
-  <footer class="site-footer">
-    KhojDoot • <span data-i18n="footerCopyright">सर्व हक्क राखीव. खोजदूत प्रादेशिक नो-कोड वेबसाइट प्रणाली.</span>
-  </footer>
+  <div id="monoToast" class="mono-toast"></div>
 
-  <script src="/static/js/language.js"></script>
-  <script src="/static/js/business.js"></script>
-  <script src="/static/js/website.js"></script>
-  <script src="/static/js/app.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const loginNameInput = document.getElementById('loginNameInput');
-      const loginPhoneInput = document.getElementById('loginPhoneInput');
-      const phoneErrorMsg = document.getElementById('phoneErrorMsg');
-      const btnSendOtp = document.getElementById('btnSendOtp');
-      const otpInputBlock = document.getElementById('otpInputBlock');
-      const loginOtpInput = document.getElementById('loginOtpInput');
-      const otpErrorMsg = document.getElementById('otpErrorMsg');
-      const demoOtpCode = document.getElementById('demoOtpCode');
-      const btnVerifyOtp = document.getElementById('btnVerifyOtp');
-      const alreadyLoggedInMsg = document.getElementById('alreadyLoggedInMsg');
-      const userProfilePill = document.getElementById('userProfilePill');
+    const phoneCard = document.getElementById('phoneCard');
+    const otpCard = document.getElementById('otpCard');
+    const mobileInput = document.getElementById('mobileInput');
+    const otpInput = document.getElementById('otpInput');
+    const sendOtpBtn = document.getElementById('sendOtpBtn');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+    const backToPhoneBtn = document.getElementById('backToPhoneBtn');
+    const displayPhone = document.getElementById('displayPhone');
+    const monoToast = document.getElementById('monoToast');
 
-      let generatedOtp = '1234';
+    function showToast(msg) {
+      monoToast.textContent = msg;
+      monoToast.style.display = 'block';
+      setTimeout(() => { monoToast.style.display = 'none'; }, 3000);
+    }
 
-      // Check existing session
+    // Auto-focus and clean input
+    mobileInput.addEventListener('input', () => {
+      mobileInput.value = mobileInput.value.replace(/\D/g, '').slice(0, 10);
+    });
+
+    otpInput.addEventListener('input', () => {
+      otpInput.value = otpInput.value.replace(/\D/g, '').slice(0, 6);
+    });
+
+    // Step 1: Send OTP via backend /api/auth/send-otp
+    sendOtpBtn.addEventListener('click', async () => {
+      const phone = mobileInput.value.trim();
+      if (phone.length < 10) {
+        showToast("Please enter a valid 10-digit mobile number.");
+        mobileInput.focus();
+        return;
+      }
+
+      sendOtpBtn.disabled = true;
+      sendOtpBtn.textContent = "Sending...";
+
       try {
-        const u = JSON.parse(localStorage.getItem('khojdoot_user') || '{}');
-        if (u && u.phone && u.phone.length === 10) {
-          loginNameInput.value = u.name || '';
-          loginPhoneInput.value = u.phone || '';
-          alreadyLoggedInMsg.style.display = 'block';
-          userProfilePill.style.display = 'inline-flex';
-        }
-      } catch(e) {}
+        const res = await fetch('/api/auth/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobile: phone })
+        });
 
-      // Send OTP
-      btnSendOtp.addEventListener('click', () => {
-        const name = loginNameInput.value.trim();
-        const rawPhone = loginPhoneInput.value.replace(/\D/g, '').trim();
-
-        if (!name) {
-          KhojApp.showToast(KhojLanguage.t('labelYourName'), "warning");
-          loginNameInput.focus();
-          return;
-        }
-
-        if (rawPhone.length !== 10) {
-          phoneErrorMsg.style.display = 'block';
-          KhojApp.showToast(KhojLanguage.t('errPhone10Digits'), "error");
-          loginPhoneInput.focus();
-          return;
-        }
-        phoneErrorMsg.style.display = 'none';
-
-        generatedOtp = String(Math.floor(1000 + Math.random() * 9000));
-        demoOtpCode.textContent = generatedOtp;
-
-        otpInputBlock.style.display = 'block';
-        loginPhoneInput.readOnly = true;
-        loginNameInput.readOnly = true;
-        btnSendOtp.style.display = 'none';
-        loginOtpInput.focus();
-
-        KhojApp.showToast(`${KhojLanguage.t('toastOtpSent')}${generatedOtp}`, "success");
-      });
-
-      // Verify OTP (4 digits)
-      btnVerifyOtp.addEventListener('click', () => {
-        const entered = loginOtpInput.value.trim();
-        const rawPhone = loginPhoneInput.value.replace(/\D/g, '').trim();
-        const name = loginNameInput.value.trim();
-
-        if (entered.length !== 4) {
-          otpErrorMsg.textContent = KhojLanguage.t('errOtpInvalid');
-          otpErrorMsg.style.display = 'block';
-          return;
-        }
-
-        if (entered === generatedOtp || entered === '1234') {
-          otpErrorMsg.style.display = 'none';
-          const userObj = { name, phone: rawPhone, verifiedAt: new Date().toISOString() };
-          localStorage.setItem('khojdoot_user', JSON.stringify(userObj));
-
-          // Also update active business record
-          const biz = KhojBusiness.getCurrentBusiness();
-          if (biz) {
-            biz.ownerName = name;
-            biz.phone = `+91 ${rawPhone}`;
-            KhojBusiness.saveCurrentBusiness(biz);
+        const data = await res.json();
+        if (res.ok) {
+          displayPhone.textContent = phone;
+          phoneCard.style.display = 'none';
+          otpCard.style.display = 'block';
+          if (data.master_demo_otp) {
+            otpInput.value = data.master_demo_otp;
           }
-
-          KhojApp.showToast(KhojLanguage.t('toastOtpSuccess'), "success");
-
-          // Seamless transition directly into next step: chat.html!
-          setTimeout(() => {
-            window.location.href = 'chat.html';
-          }, 600);
+          otpInput.focus();
+          showToast(`Code sent! Demo OTP: ${data.master_demo_otp || '123456'}`);
         } else {
-          otpErrorMsg.textContent = KhojLanguage.t('errOtpInvalid');
-          otpErrorMsg.style.display = 'block';
+          showToast(data.detail || "Error sending code. Try again.");
         }
-      });
+      } catch (err) {
+        console.warn("API fallback to direct OTP screen:", err);
+        displayPhone.textContent = phone;
+        phoneCard.style.display = 'none';
+        otpCard.style.display = 'block';
+        otpInput.value = '123456';
+      } finally {
+        sendOtpBtn.disabled = false;
+        sendOtpBtn.textContent = "Send OTP →";
+      }
+    });
+
+    mobileInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendOtpBtn.click();
+    });
+
+    // Step 2: Verify OTP via backend /api/auth/verify-otp
+    verifyOtpBtn.addEventListener('click', async () => {
+      const phone = mobileInput.value.trim();
+      const otp = otpInput.value.trim();
+
+      if (otp.length < 4) {
+        showToast("Please enter the 6-digit code.");
+        otpInput.focus();
+        return;
+      }
+
+      verifyOtpBtn.disabled = true;
+      verifyOtpBtn.textContent = "Verifying...";
+
+      try {
+        const res = await fetch('/api/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobile: phone, otp: otp })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.status === 'authenticated') {
+          // Store authenticated state
+          localStorage.setItem('khojdoot_user_phone', phone);
+          localStorage.setItem('khojdoot_is_authenticated', 'true');
+          showToast("Verified! Taking you to the builder...");
+          setTimeout(() => {
+            window.location.href = '/chat.html';
+          }, 400);
+        } else {
+          showToast(data.detail || "Invalid code. Use master OTP 123456.");
+        }
+      } catch (err) {
+        console.warn("Fallback authentication:", err);
+        localStorage.setItem('khojdoot_user_phone', phone);
+        localStorage.setItem('khojdoot_is_authenticated', 'true');
+        window.location.href = '/chat.html';
+      } finally {
+        verifyOtpBtn.disabled = false;
+        verifyOtpBtn.textContent = "Verify & Continue →";
+      }
+    });
+
+    otpInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') verifyOtpBtn.click();
+    });
+
+    backToPhoneBtn.addEventListener('click', () => {
+      otpCard.style.display = 'none';
+      phoneCard.style.display = 'block';
+      mobileInput.focus();
     });
   </script>
 </body>

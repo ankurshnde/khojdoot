@@ -76,13 +76,15 @@ def frontend_hub():
     return HTMLResponse(content="<h1>KhojDoot Frontend</h1>")
 
 
-@app.get("/", tags=["Root"])
-def root():
-    return {
-        "message": "Welcome to KhojDoot API. Check /docs for documentation.",
-        "health": "/health",
-        "frontend": "/app",
-    }
+@app.get("/", response_class=HTMLResponse, tags=["Root"])
+def root_page():
+    """Serves the monochromatic Poppins OTP Login screen as default root."""
+    import os
+    template_path = os.path.join(os.path.dirname(__file__), "templates", "login.html")
+    if os.path.exists(template_path):
+        with open(template_path, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h1>KhojDoot</h1>")
 
 
 
